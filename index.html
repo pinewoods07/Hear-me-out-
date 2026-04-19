@@ -12,19 +12,16 @@ import { initializeApp }
 import { getDatabase, ref, set, push, onValue, remove }
   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-/* ===== Firebase 설정 ===== */
 const firebaseConfig = {
   apiKey: "AIzaSyBoY74yoHgoT2zO47B7lqf5keaxPepAYrk",
   authDomain: "cake-a62cb.firebaseapp.com",
-  databaseURL: "https://cake-a62cb-default-rtdb.firebaseio.com/"
+  databaseURL: "https://cake-a62cb-default-rtdb.firebaseio.com", // ✅ 쉼표 추가!
   projectId: "cake-a62cb",
   storageBucket: "cake-a62cb.firebasestorage.app",
   messagingSenderId: "884469524808",
-  appId: "1:884469524808:web:92c5b123ec2a0aacf8eb7d",
-  measurementId: "G-CKKGJ0V1XT"
+  appId: "1:884469524808:web:92c5b123ec2a0aacf8eb7d"
 };
 
-/* ===== 초기화는 딱 한 번만! ===== */
 try {
   const app = initializeApp(firebaseConfig);
   const db  = getDatabase(app);
@@ -58,12 +55,11 @@ body::before {
   content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
   background:
     radial-gradient(circle at 15% 20%, rgba(255,107,157,.12) 0%, transparent 50%),
-    radial-gradient(circle at 85% 75%, rgba(255,179,71,.10)  0%, transparent 50%);
+    radial-gradient(circle at 85% 75%, rgba(255,179,71,.10) 0%, transparent 50%);
 }
 .screen { display: none; position: relative; z-index: 1; }
 .screen.active { display: block; }
 
-/* ── HOME ── */
 #homeScreen {
   max-width: 480px; margin: 0 auto;
   padding: 3rem 1.5rem 4rem; text-align: center;
@@ -85,7 +81,6 @@ body::before {
   text-transform: uppercase; letter-spacing: .08em; margin-bottom: .9rem;
 }
 
-/* ── ROOM ── */
 #roomScreen {
   max-width: 720px; margin: 0 auto;
   padding: 1.5rem 1.25rem 4rem;
@@ -166,7 +161,6 @@ body::before {
 
 .actions { display: flex; gap: 10px; flex-wrap: wrap; }
 
-/* ── INPUTS / BUTTONS ── */
 input[type="text"] {
   width: 100%; padding: 10px 14px;
   border: 1.5px solid rgba(155,122,172,.25); border-radius: 12px;
@@ -188,7 +182,6 @@ button.btn:active { transform: scale(.97); }
 .btn-leave { background: rgba(242,92,138,.08); color: var(--cake2); }
 .btn-leave:hover { background: rgba(242,92,138,.18); }
 
-/* ── MODAL ── */
 .modal-bg {
   display: none; position: fixed; inset: 0;
   background: rgba(45,27,51,.65); z-index: 1000;
@@ -219,7 +212,6 @@ button.btn:active { transform: scale(.97); }
 }
 .modal-close:hover { background: rgba(242,92,138,.15); }
 
-/* ── TOAST ── */
 .toast {
   position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
   background: var(--dark); color: #fff; padding: 10px 20px;
@@ -228,18 +220,12 @@ button.btn:active { transform: scale(.97); }
 }
 .toast.show { opacity: 1; }
 
-/* ── SETUP NOTICE ── */
 .setup-notice {
   background: #fffbf0; border: 1.5px solid #FFE082;
   border-radius: 14px; padding: 1rem 1.2rem; margin-bottom: 1rem; font-size: 13px;
   color: #7A5500; line-height: 1.7; font-weight: 300;
 }
 .setup-notice strong { font-weight: 700; }
-.setup-notice a { color: var(--pink); font-weight: 700; }
-.setup-notice code {
-  background: rgba(255,107,157,.1); padding: 2px 6px;
-  border-radius: 6px; font-size: 11px; font-family: monospace;
-}
 
 footer { text-align:center; font-size:12px; color:var(--muted); margin-top:3rem; font-weight:300; }
 footer span { color: var(--pink); }
@@ -247,16 +233,15 @@ footer span { color: var(--pink); }
 </head>
 <body>
 
-<!-- ══ HOME ══ -->
+<!-- HOME -->
 <div id="homeScreen" class="screen active">
   <div class="logo">🎂</div>
   <h1 class="logo-title">가능충 케이크 메이커</h1>
   <p class="logo-sub">친구들과 같이 케이크 꽂아버리기</p>
 
   <div id="fbNotice" class="setup-notice" style="text-align:left;">
-    ⚠️ <strong>Firebase 연결 중...</strong><br>
-    잠시 기다려줘. 연결되면 이 메시지가 사라져.<br>
-    안 사라지면 Firebase 설정을 확인해봐!
+    ⏳ <strong>Firebase 연결 중...</strong><br>
+    잠시 기다려줘. 연결되면 이 메시지가 사라져!
   </div>
 
   <div class="hcard">
@@ -281,7 +266,7 @@ footer span { color: var(--pink); }
   </div>
 </div>
 
-<!-- ══ ROOM ══ -->
+<!-- ROOM -->
 <div id="roomScreen" class="screen">
   <div class="room-header">
     <h2 id="roomTitle">방</h2>
@@ -349,9 +334,9 @@ let fbReady = false;
 let myNick = '';
 let myUID  = 'u' + Math.random().toString(36).slice(2, 9);
 let roomId = null;
-let allChars  = [];
-let hitAreas  = [];
-let unsubs    = [];
+let allChars = [];
+let hitAreas = [];
+let unsubs   = [];
 
 const canvas = document.getElementById('cakeCanvas');
 const ctx    = canvas.getContext('2d');
@@ -363,12 +348,12 @@ window.addEventListener('firebase-ready', () => {
   fbDB = fb.db; fbRef = fb.ref; fbSet = fb.set;
   fbPush = fb.push; fbOnValue = fb.onValue; fbRemove = fb.remove;
   fbReady = true;
-  document.getElementById('fbNotice').style.display = 'none'; // ✅ 연결 성공 시 숨김
+  document.getElementById('fbNotice').style.display = 'none';
 });
 
 window.addEventListener('firebase-error', () => {
   document.getElementById('fbNotice').innerHTML =
-    '❌ <strong>Firebase 연결 실패</strong><br>databaseURL 등 설정을 확인해줘!';
+    '❌ <strong>Firebase 연결 실패!</strong><br>F12 콘솔창에서 오류 내용을 확인해봐.';
 });
 
 /* ══ 초기화 ══ */
@@ -384,9 +369,9 @@ window.addEventListener('DOMContentLoaded', () => {
 const dz = document.getElementById('dropZone');
 if (dz) {
   dz.addEventListener('dragover', e => { e.preventDefault(); dz.style.borderColor='#FF6B9D'; });
-  dz.addEventListener('dragleave', () => { dz.style.borderColor=''; });
+  dz.addEventListener('dragleave', () => { dz.style.borderColor = ''; });
   dz.addEventListener('drop', e => {
-    e.preventDefault(); dz.style.borderColor='';
+    e.preventDefault(); dz.style.borderColor = '';
     addFiles(e.dataTransfer.files);
   });
 }
@@ -412,17 +397,19 @@ async function joinRoom() {
 
 async function enterRoom() {
   localStorage.setItem('gnick', myNick);
-
-  await fbSet(fbRef(fbDB, `rooms/${roomId}/participants/${myUID}`), {
-    nick: myNick, joinedAt: Date.now()
-  });
+  try {
+    await fbSet(fbRef(fbDB, `rooms/${roomId}/participants/${myUID}`), {
+      nick: myNick, joinedAt: Date.now()
+    });
+  } catch(e) {
+    toast('DB 연결 오류! 콘솔을 확인해봐'); console.error(e); return;
+  }
 
   document.getElementById('homeScreen').classList.remove('active');
   document.getElementById('roomScreen').classList.add('active');
   document.getElementById('roomCodeDisplay').textContent = roomId;
   document.getElementById('roomTitle').textContent = `🎂 ${roomId} 방`;
   history.replaceState({}, '', `?room=${roomId}`);
-
   startListeners();
 }
 
@@ -484,13 +471,13 @@ function renderMyItems() {
   wrap.innerHTML = '';
   mine.forEach(c => {
     const chip = document.createElement('div'); chip.className = 'mychip';
-    const img = document.createElement('img'); img.src = c.imgData;
-    const inp = document.createElement('input');
+    const img  = document.createElement('img');  img.src = c.imgData;
+    const inp  = document.createElement('input');
     inp.value = c.name || ''; inp.placeholder = '이름'; inp.maxLength = 10;
-    inp.oninput = e => fbSet(fbRef(fbDB,`rooms/${roomId}/items/${c.key}/name`), e.target.value);
+    inp.oninput = e => fbSet(fbRef(fbDB, `rooms/${roomId}/items/${c.key}/name`), e.target.value);
     const btn = document.createElement('button');
     btn.textContent = '×';
-    btn.onclick = () => fbRemove(fbRef(fbDB,`rooms/${roomId}/items/${c.key}`));
+    btn.onclick = () => fbRemove(fbRef(fbDB, `rooms/${roomId}/items/${c.key}`));
     chip.append(img, inp, btn);
     wrap.appendChild(chip);
   });
@@ -499,7 +486,7 @@ function renderMyItems() {
 /* ══ 이미지 프리로드 ══ */
 function preloadImages() {
   allChars.forEach(c => {
-    if (!c.imgData || (imgCache[c.imgData] && imgCache[c.imgData].complete)) return;
+    if (!c.imgData || (imgCache[c.imgData] && imgCache[c.imgData].complete && imgCache[c.imgData].naturalWidth)) return;
     const img = new Image();
     img.onload = () => { imgCache[c.imgData] = img; drawCake(); };
     img.src = c.imgData;
@@ -510,7 +497,7 @@ function preloadImages() {
 function getCachedImg(src) {
   if (!src) return null;
   const img = imgCache[src];
-  return img && img.complete && img.naturalWidth ? img : null;
+  return (img && img.complete && img.naturalWidth) ? img : null;
 }
 
 /* ══ 케이크 그리기 ══ */
@@ -522,14 +509,17 @@ function drawCake() {
   const cx = W/2, cbottom = H-40, ctop = cbottom-130;
   const rx = 200, ryT = 44, ryB = 28;
 
+  /* 배경 장식 */
   ctx.globalAlpha = .18;
   [[60,30,'#FF6B9D'],[520,50,'#FFB347'],[80,400,'#FF9BBB'],[500,380,'#FF6B9D']].forEach(([x,y,c])=>{
     ctx.beginPath(); ctx.arc(x,y,6,0,Math.PI*2); ctx.fillStyle=c; ctx.fill();
   });
   ctx.globalAlpha = 1;
 
+  /* 케이크 밑면 */
   efill(cx, cbottom, rx, ryB, '#D94A78');
 
+  /* 케이크 옆면 */
   ctx.beginPath();
   ctx.moveTo(cx-rx, ctop); ctx.lineTo(cx-rx, cbottom);
   ctx.ellipse(cx, cbottom, rx, ryB, 0, Math.PI, 0);
@@ -538,161 +528,178 @@ function drawCake() {
   sg.addColorStop(0,'#F25C8A'); sg.addColorStop(.5,'#E8547F'); sg.addColorStop(1,'#D94A78');
   ctx.fillStyle = sg; ctx.fill();
 
+  /* 크림 흘림 */
   for (let i=0;i<9;i++) {
-    const a=Math.PI/8*i;
-    const ex=cx+Math.cos(Math.PI-a)*rx*.98, ey=ctop+Math.sin(Math.PI-a)*ryT*.5;
-    const dl=12+(i%3)*8;
-    ctx.beginPath(); ctx.moveTo(ex,ey-2);
-    ctx.bezierCurveTo(ex-2,ey+dl*.5,ex+2,ey+dl*.8,ex,ey+dl);
+    const a  = Math.PI/8*i;
+    const ex = cx + Math.cos(Math.PI-a)*rx*.98;
+    const ey = ctop + Math.sin(Math.PI-a)*ryT*.5;
+    const dl = 12+(i%3)*8;
+    ctx.beginPath(); ctx.moveTo(ex, ey-2);
+    ctx.bezierCurveTo(ex-2, ey+dl*.5, ex+2, ey+dl*.8, ex, ey+dl);
     ctx.strokeStyle='#FFF0F5'; ctx.lineWidth=7; ctx.lineCap='round'; ctx.stroke();
   }
 
+  /* 케이크 윗면 */
   efill(cx, ctop, rx, ryT, '#FF9BBB');
   estroke(cx, ctop, rx, ryT, '#FFF0F5', 6);
 
+  /* 크림 방울 */
   [0,.55,1.1,1.65,2.2,2.75,3.3,3.85,4.4,4.95,5.5,6.05].forEach(a=>{
-    ctx.beginPath(); ctx.arc(cx+Math.cos(a)*rx*.82, ctop+Math.sin(a)*ryT*.82, 5, 0, Math.PI*2);
+    ctx.beginPath();
+    ctx.arc(cx+Math.cos(a)*rx*.82, ctop+Math.sin(a)*ryT*.82, 5, 0, Math.PI*2);
     ctx.fillStyle='#FFF0F5'; ctx.fill();
   });
+
+  /* 딸기 */
   [.28,1.38,2.48,3.58,4.68,5.78].forEach(a=>
     drawStrawberry(cx+Math.cos(a)*rx*.55, ctop+Math.sin(a)*ryT*.55, 9));
 
-  const chars = allChars.filter(c=>c.imgData);
+  /* ══ 초 (사진) ══ */
+  const chars = allChars.filter(c => c.imgData);
   if (chars.length === 0) {
-    ctx.font='14px "Gmarket Sans",sans-serif'; ctx.fillStyle='rgba(155,122,172,.5)'; ctx.textAlign='center';
+    ctx.font = '14px "Gmarket Sans",sans-serif';
+    ctx.fillStyle = 'rgba(155,122,172,.5)';
+    ctx.textAlign = 'center';
     ctx.fillText('이미지를 올리면 케이크에 꽂혀요 🕯️', cx, ctop-50);
   } else {
-    const n=chars.length;
-    const cr=Math.min(46,Math.max(24,86-n*5));
-    const sw=Math.max(5,cr*.18);
-    const pos=getCandlePos(n,cx,ctop,rx*.72,ryT*.72);
+    const n  = chars.length;
+    const cr = Math.min(46, Math.max(24, 86-n*5));
+    const sw = Math.max(5, cr*.18);
+    const pos = getCandlePos(n, cx, ctop, rx*.72, ryT*.72);
 
-    pos.forEach(([px,py],i)=>{
-      const sl=60+(i%4)*16;
-      const icy=py-sl-cr;
+    pos.forEach(([px,py], i) => {
+      const sl  = 60 + (i%4)*16;
+      const icy = py - sl - cr;
 
+      /* 초 막대 */
       ctx.save();
-      const gg=ctx.createLinearGradient(px-sw,py,px+sw,py);
+      const gg = ctx.createLinearGradient(px-sw, py, px+sw, py);
       gg.addColorStop(0,'#E8B090'); gg.addColorStop(.4,'#C8956C'); gg.addColorStop(1,'#A07050');
       ctx.strokeStyle=gg; ctx.lineWidth=sw; ctx.lineCap='round';
-      ctx.beginPath(); ctx.moveTo(px,py); ctx.lineTo(px,py-sl); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(px,py); ctx.lineTo(px, py-sl); ctx.stroke();
       ctx.restore();
 
+      /* 불꽃 */
       ctx.save(); ctx.globalAlpha=.9;
-      ctx.beginPath(); ctx.ellipse(px,py-sl-10,4,8,0,0,Math.PI*2);
+      ctx.beginPath(); ctx.ellipse(px, py-sl-10, 4, 8, 0, 0, Math.PI*2);
       ctx.fillStyle='#FFD700'; ctx.fill();
-      ctx.beginPath(); ctx.ellipse(px,py-sl-9,2.5,5,0,0,Math.PI*2);
+      ctx.beginPath(); ctx.ellipse(px, py-sl-9, 2.5, 5, 0, 0, Math.PI*2);
       ctx.fillStyle='#FF8C00'; ctx.fill();
       ctx.globalAlpha=1; ctx.restore();
 
+      /* 사진 테두리 */
       ctx.save();
-      ctx.beginPath(); ctx.arc(px,icy,cr+3,0,Math.PI*2);
-      ctx.fillStyle='#fff'; ctx.shadowColor='rgba(242,92,138,.3)'; ctx.shadowBlur=10; ctx.fill();
+      ctx.beginPath(); ctx.arc(px, icy, cr+3, 0, Math.PI*2);
+      ctx.fillStyle='#fff';
+      ctx.shadowColor='rgba(242,92,138,.3)'; ctx.shadowBlur=10; ctx.fill();
       ctx.restore();
       ctx.save();
-      ctx.beginPath(); ctx.arc(px,icy,cr+3,0,Math.PI*2);
+      ctx.beginPath(); ctx.arc(px, icy, cr+3, 0, Math.PI*2);
       ctx.strokeStyle='#FF9BBB'; ctx.lineWidth=2.5; ctx.stroke();
       ctx.restore();
 
-      const img=getCachedImg(chars[i].imgData);
+      /* 사진 */
+      const img = getCachedImg(chars[i].imgData);
       if (img) {
         ctx.save();
-        ctx.beginPath(); ctx.arc(px,icy,cr,0,Math.PI*2); ctx.clip();
-        ctx.drawImage(img,px-cr,icy-cr,cr*2,cr*2);
+        ctx.beginPath(); ctx.arc(px, icy, cr, 0, Math.PI*2); ctx.clip();
+        ctx.drawImage(img, px-cr, icy-cr, cr*2, cr*2);
         ctx.restore();
       } else {
         ctx.save();
-        ctx.beginPath(); ctx.arc(px,icy,cr,0,Math.PI*2);
+        ctx.beginPath(); ctx.arc(px, icy, cr, 0, Math.PI*2);
         ctx.fillStyle='rgba(255,155,187,.25)'; ctx.fill();
         ctx.restore();
       }
 
-      const nm=(chars[i].name||'').slice(0,7)+(chars[i].name&&chars[i].name.length>7?'…':'');
+      /* 이름 레이블 */
+      const nm = (chars[i].name||'').slice(0,7) + (chars[i].name && chars[i].name.length>7 ? '…' : '');
       if (nm) {
-        ctx.font='bold 11px "Gmarket Sans",sans-serif';
-        const tw=ctx.measureText(nm).width;
-        const lx=px-tw/2-7, ly=icy+cr+6;
-        /* ✅ roundRect 대신 수동으로 그리기 (호환성) */
+        ctx.font = 'bold 11px "Gmarket Sans",sans-serif';
+        const tw = ctx.measureText(nm).width;
+        const lx = px - tw/2 - 7, ly = icy + cr + 6;
         roundRectFill(ctx, lx, ly, tw+14, 18, 9, 'rgba(255,107,157,.12)');
         ctx.fillStyle='#D94A78'; ctx.textAlign='center';
-        ctx.fillText(nm,px,ly+13);
+        ctx.fillText(nm, px, ly+13);
       }
 
+      /* 올린 사람 닉네임 */
       if (chars[i].nick) {
-        ctx.font='10px "Gmarket Sans",sans-serif';
-        ctx.fillStyle='rgba(155,122,172,.7)'; ctx.textAlign='center';
+        ctx.font = '10px "Gmarket Sans",sans-serif';
+        ctx.fillStyle = 'rgba(155,122,172,.7)'; ctx.textAlign='center';
         ctx.fillText(chars[i].nick, px, icy-cr-8);
       }
 
-      hitAreas.push({x:px,y:icy,r:cr+3,idx:i});
+      hitAreas.push({x:px, y:icy, r:cr+3, idx:i});
     });
   }
 
-  ctx.font='bold 12px "Gmarket Sans",sans-serif';
-  ctx.fillStyle='rgba(155,122,172,.38)'; ctx.textAlign='center';
+  /* 서명 */
+  ctx.font = 'bold 12px "Gmarket Sans",sans-serif';
+  ctx.fillStyle = 'rgba(155,122,172,.38)'; ctx.textAlign='center';
   ctx.fillText(roomId ? `가능충 케이크 · ${roomId}방` : '가능충 케이크 메이커', W/2, H-10);
 }
 
-/* ✅ roundRect 폴리필 */
+/* ══ roundRect 폴리필 ══ */
 function roundRectFill(ctx, x, y, w, h, r, color) {
   ctx.beginPath();
-  ctx.moveTo(x + r, y);
-  ctx.lineTo(x + w - r, y);
-  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
-  ctx.lineTo(x + w, y + h - r);
-  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
-  ctx.lineTo(x + r, y + h);
-  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
-  ctx.lineTo(x, y + r);
-  ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.moveTo(x+r, y);
+  ctx.lineTo(x+w-r, y);
+  ctx.quadraticCurveTo(x+w, y, x+w, y+r);
+  ctx.lineTo(x+w, y+h-r);
+  ctx.quadraticCurveTo(x+w, y+h, x+w-r, y+h);
+  ctx.lineTo(x+r, y+h);
+  ctx.quadraticCurveTo(x, y+h, x, y+h-r);
+  ctx.lineTo(x, y+r);
+  ctx.quadraticCurveTo(x, y, x+r, y);
   ctx.closePath();
   ctx.fillStyle = color;
   ctx.fill();
 }
 
 /* ══ 초 위치 계산 ══ */
-function getCandlePos(n,cx,cy,rx,ry) {
-  if (n===1) return [[cx,cy]];
+function getCandlePos(n, cx, cy, rx, ry) {
+  if (n===1) return [[cx, cy]];
   if (n<=8) {
-    const step=-Math.PI/2, ao=(2*Math.PI)/n, r=n<=3?.45:.65;
-    return Array.from({length:n},(_,i)=>
-      [cx+Math.cos(step+i*ao)*rx*r, cy+Math.sin(step+i*ao)*ry*r]);
+    const step = -Math.PI/2, ao = (2*Math.PI)/n, r = n<=3 ? .45 : .65;
+    return Array.from({length:n}, (_,i) =>
+      [cx + Math.cos(step+i*ao)*rx*r, cy + Math.sin(step+i*ao)*ry*r]);
   }
-  const inner=Math.min(4,Math.floor(n*.35)), outer=n-inner;
-  const ao=(2*Math.PI)/outer, ai=(2*Math.PI)/Math.max(inner,1);
-  const pos=[];
+  const inner = Math.min(4, Math.floor(n*.35)), outer = n-inner;
+  const ao = (2*Math.PI)/outer, ai = (2*Math.PI)/Math.max(inner,1);
+  const pos = [];
   for(let i=0;i<outer;i++) pos.push([cx+Math.cos(-Math.PI/2+i*ao)*rx*.78, cy+Math.sin(-Math.PI/2+i*ao)*ry*.78]);
   for(let i=0;i<inner;i++) pos.push([cx+Math.cos(-Math.PI/2+i*ai+ao/2)*rx*.38, cy+Math.sin(-Math.PI/2+i*ai+ao/2)*ry*.38]);
   return pos;
 }
 
-/* ══ 클릭 ══ */
+/* ══ 캔버스 클릭 ══ */
 canvas.addEventListener('click', e => {
-  const r=canvas.getBoundingClientRect();
-  const mx=(e.clientX-r.left)*(canvas.width/r.width);
-  const my=(e.clientY-r.top)*(canvas.height/r.height);
+  const r  = canvas.getBoundingClientRect();
+  const mx = (e.clientX-r.left)*(canvas.width/r.width);
+  const my = (e.clientY-r.top)*(canvas.height/r.height);
   for (const a of hitAreas) {
-    if (Math.hypot(mx-a.x,my-a.y)<=a.r) {
+    if (Math.hypot(mx-a.x, my-a.y) <= a.r) {
       openModal(allChars.filter(c=>c.imgData)[a.idx]); return;
     }
   }
 });
 canvas.addEventListener('mousemove', e => {
-  const r=canvas.getBoundingClientRect();
-  const mx=(e.clientX-r.left)*(canvas.width/r.width);
-  const my=(e.clientY-r.top)*(canvas.height/r.height);
-  canvas.style.cursor=hitAreas.some(a=>Math.hypot(mx-a.x,my-a.y)<=a.r)?'pointer':'default';
+  const r  = canvas.getBoundingClientRect();
+  const mx = (e.clientX-r.left)*(canvas.width/r.width);
+  const my = (e.clientY-r.top)*(canvas.height/r.height);
+  canvas.style.cursor = hitAreas.some(a => Math.hypot(mx-a.x,my-a.y) <= a.r) ? 'pointer' : 'default';
 });
 
 /* ══ 모달 ══ */
 function openModal(c) {
-  document.getElementById('modalImg').src = c.imgData;
+  document.getElementById('modalImg').src   = c.imgData;
   document.getElementById('modalName').textContent  = c.name || '무명의 가능충';
   document.getElementById('modalOwner').textContent = `꽂은 사람: ${c.nick||'?'}`;
   document.getElementById('modalBg').classList.add('open');
 }
 function closeModal(e) {
-  if (!e||e.target===document.getElementById('modalBg'))
+  if (!e || e.target === document.getElementById('modalBg'))
     document.getElementById('modalBg').classList.remove('open');
 }
 document.addEventListener('keydown', e => { if(e.key==='Escape') closeModal(); });
@@ -700,34 +707,36 @@ document.addEventListener('keydown', e => { if(e.key==='Escape') closeModal(); }
 /* ══ 나가기 ══ */
 async function leaveRoom() {
   if (roomId) {
-    try { await fbRemove(fbRef(fbDB,`rooms/${roomId}/participants/${myUID}`)); } catch(_){}
+    try { await fbRemove(fbRef(fbDB, `rooms/${roomId}/participants/${myUID}`)); } catch(_){}
   }
-  unsubs.forEach(u=>{ try{u();}catch(_){} });
+  unsubs.forEach(u => { try{u();}catch(_){} });
   unsubs=[]; allChars=[]; roomId=null;
-  history.replaceState({},'',location.pathname);
+  history.replaceState({}, '', location.pathname);
   document.getElementById('roomScreen').classList.remove('active');
   document.getElementById('homeScreen').classList.add('active');
-  document.getElementById('myItems').innerHTML='';
-  document.getElementById('participantList').innerHTML='';
+  document.getElementById('myItems').innerHTML = '';
+  document.getElementById('participantList').innerHTML = '';
   drawCake();
 }
 
 /* ══ 코드 복사 ══ */
 function copyCode() {
-  const url=`${location.origin}${location.pathname}?room=${roomId}`;
+  const url = `${location.origin}${location.pathname}?room=${roomId}`;
   navigator.clipboard.writeText(url)
-    .then(()=>toast('🔗 링크 복사됨! 친구한테 공유해'))
-    .catch(()=>{ navigator.clipboard.writeText(roomId); toast(`방 코드 복사됨: ${roomId}`); });
+    .then(()  => toast('🔗 링크 복사됨! 친구한테 공유해'))
+    .catch(()  => { navigator.clipboard.writeText(roomId); toast(`방 코드: ${roomId}`); });
 }
 
 /* ══ 다운로드 ══ */
 function downloadCake() {
   drawCake();
-  const a=document.createElement('a');
-  a.download='가능충케이크.png'; a.href=canvas.toDataURL('image/png'); a.click();
+  const a = document.createElement('a');
+  a.download = '가능충케이크.png';
+  a.href = canvas.toDataURL('image/png');
+  a.click();
 }
 
-/* ══ 헬퍼 ══ */
+/* ══ 헬퍼 함수들 ══ */
 function efill(cx,cy,rx,ry,c){
   ctx.beginPath(); ctx.ellipse(cx,cy,rx,ry,0,0,Math.PI*2); ctx.fillStyle=c; ctx.fill();
 }
@@ -738,26 +747,29 @@ function drawStrawberry(x,y,r){
   ctx.save();
   ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); ctx.fillStyle='#FF4444'; ctx.fill();
   ctx.beginPath(); ctx.moveTo(x-2,y-r+1); ctx.lineTo(x,y-r-5); ctx.lineTo(x+2,y-r+1);
-  ctx.fillStyle='#66BB66'; ctx.fill(); ctx.restore();
+  ctx.fillStyle='#66BB66'; ctx.fill();
+  ctx.restore();
 }
 function compressImage(img, size) {
-  const c=document.createElement('canvas'); c.width=c.height=size;
-  const ct=c.getContext('2d');
-  const s=Math.min(img.width,img.height);
-  ct.drawImage(img,(img.width-s)/2,(img.height-s)/2,s,s,0,0,size,size);
-  return c.toDataURL('image/jpeg',.65);
+  const c  = document.createElement('canvas'); c.width = c.height = size;
+  const ct = c.getContext('2d');
+  const s  = Math.min(img.width, img.height);
+  ct.drawImage(img, (img.width-s)/2, (img.height-s)/2, s, s, 0, 0, size, size);
+  return c.toDataURL('image/jpeg', .65);
 }
 function getNick() {
-  const n=document.getElementById('nickInput').value.trim();
-  if(!n){ toast('닉네임을 입력해줘'); return ''; } return n;
+  const n = document.getElementById('nickInput').value.trim();
+  if (!n) { toast('닉네임을 입력해줘'); return ''; }
+  return n;
 }
 function checkFB() {
-  if(!fbReady){ toast('Firebase 연결 중이야, 잠깐만 기다려줘!'); return false; } return true;
+  if (!fbReady) { toast('Firebase 아직 연결 중이야! 잠깐만 기다려줘'); return false; }
+  return true;
 }
 function toast(msg) {
-  const t=document.getElementById('toast');
-  t.textContent=msg; t.classList.add('show');
-  clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('show'),2800);
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove('show'), 2800);
 }
 
 drawCake();
