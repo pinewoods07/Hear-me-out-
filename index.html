@@ -279,7 +279,7 @@ footer span { color: var(--pink); }
   <div class="card">
     <div class="card-title">케이크 미리보기 · 클릭하면 크게 보임</div>
     <div class="cake-stage">
-      <canvas id="cakeCanvas" width="580" height="480"></canvas>
+      <canvas id="cakeCanvas" width="580" height="500"></canvas>
     </div>
   </div>
 
@@ -343,7 +343,7 @@ window.addEventListener('DOMContentLoaded', () => {
 const dz = document.getElementById('dropZone');
 dz.addEventListener('dragover', e => { e.preventDefault(); dz.style.borderColor='#FF6B9D'; });
 dz.addEventListener('dragleave', () => { dz.style.borderColor = ''; });
-dz.addEventListener('drop', e => { e.preventDefault(); dz.style.borderColor = ''; addFiles(e.dataTransfer.files); });
+dz.addEventListener('drop', e => { e.preventDefault(); dz.style.borderColor=''; addFiles(e.dataTransfer.files); });
 document.getElementById('fileInput').addEventListener('change', e => addFiles(e.target.files));
 
 /* ══ 방 만들기 / 입장 ══ */
@@ -459,7 +459,7 @@ function getCachedImg(src) {
 
 /* ══ 케이크 그리기 ══ */
 function drawCake() {
-  const W = 580, H = 480;
+  const W = 580, H = 500;
   ctx.clearRect(0, 0, W, H);
   hitAreas = [];
 
@@ -468,7 +468,7 @@ function drawCake() {
 
   /* 배경 장식 */
   ctx.globalAlpha = .18;
-  [[60,30,'#FF6B9D'],[520,50,'#FFB347'],[80,420,'#FF9BBB'],[500,400,'#FF6B9D']].forEach(([x,y,c])=>{
+  [[60,30,'#FF6B9D'],[520,50,'#FFB347'],[80,440,'#FF9BBB'],[500,420,'#FF6B9D']].forEach(([x,y,c])=>{
     ctx.beginPath(); ctx.arc(x,y,6,0,Math.PI*2); ctx.fillStyle=c; ctx.fill();
   });
   ctx.globalAlpha = 1;
@@ -519,15 +519,13 @@ function drawCake() {
     ctx.fillText('이미지를 올리면 케이크에 꽂혀요 🕯️', cx, ctop-50);
   } else {
     const n  = chars.length;
-    /* 개수에 따라 사진 크기 자동 조절 */
-    const cr = Math.min(38, Math.max(16, 52 - n * 3.5));
+    const cr = Math.min(36, Math.max(14, 50 - n * 3));
     const sw = Math.max(3, cr * 0.15);
     let pos  = getCandlePos(n, cx, ctop, rx * 0.75, ryT * 1.2);
-    /* 겹침 방지 */
-    pos = resolveOverlap(pos, cr * 2.5, cx, ctop, rx * 0.88, ryT * 0.88);
+    pos = resolveOverlap(pos, cr * 2.8 + 8, cx, ctop, rx * 0.88, ryT * 0.88);
 
     pos.forEach(([px,py], i) => {
-      const sl  = 55 + (i%4)*12;
+      const sl  = 55 + (i%4)*10;
       const icy = py - sl - cr;
 
       /* 초 막대 */
@@ -546,7 +544,7 @@ function drawCake() {
       ctx.fillStyle='#FF8C00'; ctx.fill();
       ctx.globalAlpha=1; ctx.restore();
 
-      /* 사진 테두리 */
+      /* 사진 흰 테두리 */
       ctx.save();
       ctx.beginPath(); ctx.arc(px,icy,cr+3,0,Math.PI*2);
       ctx.fillStyle='#fff';
@@ -572,9 +570,9 @@ function drawCake() {
       }
 
       /* 이름 레이블 */
-      const nm = (chars[i].name||'').slice(0,7) + (chars[i].name?.length>7?'…':'');
+      const nm = (chars[i].name||'').slice(0,7) + ((chars[i].name?.length||0)>7?'…':'');
       if (nm) {
-        ctx.font = `bold ${Math.max(9,cr*0.28)}px "Gmarket Sans",sans-serif`;
+        ctx.font = `bold ${Math.max(9,Math.floor(cr*0.3))}px "Gmarket Sans",sans-serif`;
         const tw = ctx.measureText(nm).width;
         const lx = px-tw/2-6, ly = icy+cr+5;
         roundRectFill(ctx, lx, ly, tw+12, 16, 8, 'rgba(255,107,157,.15)');
@@ -584,7 +582,7 @@ function drawCake() {
 
       /* 올린 사람 닉네임 */
       if (chars[i].nick) {
-        ctx.font = `${Math.max(8,cr*0.25)}px "Gmarket Sans",sans-serif`;
+        ctx.font = `${Math.max(8,Math.floor(cr*0.25))}px "Gmarket Sans",sans-serif`;
         ctx.fillStyle='rgba(155,122,172,.7)'; ctx.textAlign='center';
         ctx.fillText(chars[i].nick, px, icy-cr-6);
       }
@@ -599,20 +597,86 @@ function drawCake() {
   ctx.fillText(roomId?`가능충 케이크 · ${roomId}방`:'가능충 케이크 메이커', W/2, H-10);
 }
 
+/* ══ 초 위치 계산 ══ */
+function getCandlePos(n, cx, cy, rx, ry) {
+  if (n === 1) return [[cx - rx*0.3, cy]];
+  if (n === 2) return [
+    [cx - rx*0.5, cy],
+    [cx + rx*0.5, cy],
+  ];
+  if (n === 3) return [
+    [cx - rx*0.6, cy + ry*0.3],
+    [cx,          cy - ry*0.5],
+    [cx + rx*0.6, cy + ry*0.3],
+  ];
+  if (n === 4) return [
+    [cx - rx*0.55, cy - ry*0.4],
+    [cx + rx*0.55, cy - ry*0.4],
+    [cx - rx*0.55, cy + ry*0.4],
+    [cx + rx*0.55, cy + ry*0.4],
+  ];
+  if (n === 5) return [
+    [cx,           cy - ry*0.5],
+    [cx - rx*0.6,  cy - ry*0.1],
+    [cx + rx*0.6,  cy - ry*0.1],
+    [cx - rx*0.38, cy + ry*0.5],
+    [cx + rx*0.38, cy + ry*0.5],
+  ];
+  if (n === 6) return [
+    [cx - rx*0.55, cy - ry*0.5],
+    [cx,           cy - ry*0.5],
+    [cx + rx*0.55, cy - ry*0.5],
+    [cx - rx*0.55, cy + ry*0.4],
+    [cx,           cy + ry*0.4],
+    [cx + rx*0.55, cy + ry*0.4],
+  ];
+  if (n === 7) return [
+    [cx,           cy - ry*0.55],
+    [cx - rx*0.55, cy - ry*0.2],
+    [cx + rx*0.55, cy - ry*0.2],
+    [cx - rx*0.35, cy + ry*0.5],
+    [cx + rx*0.35, cy + ry*0.5],
+    [cx - rx*0.7,  cy + ry*0.3],
+    [cx + rx*0.7,  cy + ry*0.3],
+  ];
+  if (n === 8) return [
+    [cx - rx*0.55, cy - ry*0.55],
+    [cx,           cy - ry*0.6],
+    [cx + rx*0.55, cy - ry*0.55],
+    [cx - rx*0.7,  cy],
+    [cx + rx*0.7,  cy],
+    [cx - rx*0.55, cy + ry*0.5],
+    [cx,           cy + ry*0.55],
+    [cx + rx*0.55, cy + ry*0.5],
+  ];
+  /* 9개 이상: 바깥 링 + 안쪽 링 */
+  const outerN = Math.ceil(n * 0.65);
+  const innerN = n - outerN;
+  const pos = [];
+  for (let i = 0; i < outerN; i++) {
+    const a = -Math.PI/2 + (2*Math.PI/outerN)*i;
+    pos.push([cx + Math.cos(a)*rx*0.72, cy + Math.sin(a)*ry*0.72]);
+  }
+  for (let i = 0; i < innerN; i++) {
+    const a = -Math.PI/2 + (2*Math.PI/Math.max(innerN,1))*i + Math.PI/innerN;
+    pos.push([cx + Math.cos(a)*rx*0.35, cy + Math.sin(a)*ry*0.35]);
+  }
+  return pos;
+}
+
 /* ══ 겹침 방지 ══ */
 function resolveOverlap(pos, minDist, cx, cy, rx, ry) {
-  // 깊은 복사
   pos = pos.map(p => [...p]);
-  const MAX_ITER = 80;
+  const MAX_ITER = 200;
   for (let iter = 0; iter < MAX_ITER; iter++) {
     let moved = false;
     for (let i = 0; i < pos.length; i++) {
       for (let j = i+1; j < pos.length; j++) {
         const dx   = pos[j][0] - pos[i][0];
         const dy   = pos[j][1] - pos[i][1];
-        const dist = Math.sqrt(dx*dx + dy*dy);
-        if (dist < minDist && dist > 0.01) {
-          const push = (minDist - dist) / 2 + 1;
+        const dist = Math.sqrt(dx*dx + dy*dy) || 0.01;
+        if (dist < minDist) {
+          const push = (minDist - dist) / 2 + 2;
           const nx = dx/dist, ny = dy/dist;
           pos[i][0] -= nx*push; pos[i][1] -= ny*push;
           pos[j][0] += nx*push; pos[j][1] += ny*push;
@@ -622,34 +686,13 @@ function resolveOverlap(pos, minDist, cx, cy, rx, ry) {
     }
     if (!moved) break;
   }
-  /* 타원 범위 밖으로 나가면 안으로 당기기 */
+  /* 타원 범위 밖으로 나가면 안으로 클램핑 */
   return pos.map(([x,y]) => {
-    const dx = (x-cx)/rx, dy = (y-cy)/ry;
-    const d  = Math.sqrt(dx*dx + dy*dy);
-    if (d > 1) return [cx+(dx/d)*rx*0.92, cy+(dy/d)*ry*0.92];
+    const ddx = (x-cx)/rx, ddy = (y-cy)/ry;
+    const d   = Math.sqrt(ddx*ddx + ddy*ddy);
+    if (d > 0.95) return [cx+(ddx/d)*rx*0.92, cy+(ddy/d)*ry*0.92];
     return [x, y];
   });
-}
-
-/* ══ 초 위치 계산 ══ */
-function getCandlePos(n, cx, cy, rx, ry) {
-  if (n === 1) return [[cx - rx*0.4, cy - ry*0.2]];
-  if (n === 2) return [
-    [cx - rx*0.5, cy - ry*0.2],
-    [cx + rx*0.5, cy + ry*0.2],
-  ];
-  if (n === 3) return [
-    [cx - rx*0.55, cy + ry*0.3],
-    [cx,           cy - ry*0.6],
-    [cx + rx*0.55, cy + ry*0.3],
-  ];
-  /* 4개 이상: 타원 위에 골고루 */
-  const ao   = (2*Math.PI) / n;
-  const step = -Math.PI / 2;
-  return Array.from({length:n}, (_,i) => [
-    cx + Math.cos(step + i*ao) * rx * 0.7,
-    cy + Math.sin(step + i*ao) * ry * 0.7,
-  ]);
 }
 
 /* ══ roundRect 폴리필 ══ */
@@ -667,7 +710,7 @@ function roundRectFill(ctx, x, y, w, h, r, color) {
   ctx.fillStyle=color; ctx.fill();
 }
 
-/* ══ 캔버스 클릭 ══ */
+/* ══ 캔버스 클릭 / 마우스 ══ */
 canvas.addEventListener('click', e => {
   const r  = canvas.getBoundingClientRect();
   const mx = (e.clientX-r.left)*(canvas.width/r.width);
