@@ -565,7 +565,7 @@ function drawCake() {
     const n  = chars.length;
     const cr = Math.min(46, Math.max(24, 86-n*5));
     const sw = Math.max(5, cr*.18);
-    const pos = getCandlePos(n, cx, ctop, rx*.72, ryT*.72);
+    const pos = getCandlePos(n, cx, ctop, rx * 0.75, ryT * 1.2);
 
     pos.forEach(([px,py], i) => {
       const sl  = 60 + (i%4)*16;
@@ -659,62 +659,49 @@ function roundRectFill(ctx, x, y, w, h, r, color) {
 
 /* ══ 초 위치 계산 ══ */
 function getCandlePos(n, cx, cy, rx, ry) {
-  // 각도를 골고루 퍼뜨리되, 약간 랜덤한 느낌으로 배치
-  const positions = [];
-  
   if (n === 1) {
-    // 1개: 살짝 왼쪽 위에 꽂기 (정중앙 X)
-    return [[cx - rx * 0.3, cy - ry * 0.2]];
+    return [[cx - rx * 0.55, cy]];
   }
-  
   if (n === 2) {
     return [
-      [cx - rx * 0.45, cy - ry * 0.1],
-      [cx + rx * 0.45, cy + ry * 0.1],
+      [cx - rx * 0.55, cy - ry * 0.3],
+      [cx + rx * 0.55, cy + ry * 0.3],
     ];
   }
-
   if (n === 3) {
     return [
-      [cx - rx * 0.5, cy + ry * 0.2],
-      [cx,            cy - ry * 0.5],
-      [cx + rx * 0.5, cy + ry * 0.2],
+      [cx - rx * 0.58, cy + ry * 0.4],
+      [cx,             cy - ry * 0.7],
+      [cx + rx * 0.58, cy + ry * 0.4],
     ];
   }
-
   if (n <= 8) {
-    // 타원형으로 골고루 배치
     const ao = (2 * Math.PI) / n;
     const step = -Math.PI / 2;
-    for (let i = 0; i < n; i++) {
-      const angle = step + i * ao;
-      positions.push([
-        cx + Math.cos(angle) * rx * 0.62,
-        cy + Math.sin(angle) * ry * 0.62,
-      ]);
-    }
-    return positions;
+    return Array.from({length: n}, (_, i) => [
+      cx + Math.cos(step + i * ao) * rx * 0.68,
+      cy + Math.sin(step + i * ao) * ry * 0.68,
+    ]);
   }
-
-  // 9개 이상: 바깥 원 + 안쪽 원 2겹
+  // 9개 이상
   const inner = Math.min(4, Math.floor(n * 0.35));
   const outer = n - inner;
   const ao = (2 * Math.PI) / outer;
   const ai = (2 * Math.PI) / Math.max(inner, 1);
-
+  const pos = [];
   for (let i = 0; i < outer; i++) {
-    positions.push([
-      cx + Math.cos(-Math.PI/2 + i*ao) * rx * 0.78,
-      cy + Math.sin(-Math.PI/2 + i*ao) * ry * 0.78,
+    pos.push([
+      cx + Math.cos(-Math.PI/2 + i*ao) * rx * 0.85,
+      cy + Math.sin(-Math.PI/2 + i*ao) * ry * 0.85,
     ]);
   }
   for (let i = 0; i < inner; i++) {
-    positions.push([
-      cx + Math.cos(-Math.PI/2 + i*ai + ao/2) * rx * 0.38,
-      cy + Math.sin(-Math.PI/2 + i*ai + ao/2) * ry * 0.38,
+    pos.push([
+      cx + Math.cos(-Math.PI/2 + i*ai + ao/2) * rx * 0.42,
+      cy + Math.sin(-Math.PI/2 + i*ai + ao/2) * ry * 0.42,
     ]);
   }
-  return positions;
+  return pos;
 }
 
 /* ══ 캔버스 클릭 ══ */
