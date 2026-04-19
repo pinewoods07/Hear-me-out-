@@ -278,7 +278,7 @@ footer span { color: var(--pink); }
   <div class="card">
     <div class="card-title">케이크 미리보기 · 클릭하면 크게 보임</div>
     <div class="cake-stage">
-      <canvas id="cakeCanvas" width="1200" height="700"></canvas>
+      <canvas id="cakeCanvas" width="1200" height="900"></canvas>
     </div>
   </div>
 
@@ -316,7 +316,6 @@ let unsubs   = [];
 const canvas = document.getElementById('cakeCanvas');
 const ctx    = canvas.getContext('2d');
 const imgCache   = {};
-const imgCacheHQ = {};
 
 /* ══ Firebase ══ */
 window.addEventListener('firebase-ready', () => {
@@ -411,8 +410,8 @@ function addFiles(files) {
     reader.onload = ev => {
       const img = new Image();
       img.onload = () => {
-        const lq = compressImage(img, 220, 0.75);   // 캔버스용
-        const hq = compressImage(img, 600, 0.95);   // 모달 고화질용
+        const lq = compressImage(img, 260, 0.80);
+        const hq = compressImage(img, 600, 0.95);
         fbPush(fbRef(fbDB, `rooms/${roomId}/items`), {
           uid: myUID, nick: myNick,
           name: file.name.replace(/\.[^.]+$/,'').slice(0,10),
@@ -464,17 +463,18 @@ function getCachedImg(src) {
 
 /* ══ 케이크 그리기 ══ */
 function drawCake() {
-  const W = 1200, H = 700;
+  const W = 1200, H = 900;
   ctx.clearRect(0, 0, W, H);
   hitAreas = [];
 
+  // 케이크는 아래쪽에 고정
   const cx = W/2, cbottom = H - 50, ctop = cbottom - 160;
   const rx = 500, ryT = 68, ryB = 44;
 
   /* 배경 장식 */
-  ctx.globalAlpha = .12;
-  [[80,40,'#FF6B9D'],[1120,60,'#FFB347'],[80,640,'#FF9BBB'],[1120,640,'#FF6B9D'],
-   [400,25,'#FFB347'],[800,25,'#FF9BBB'],[200,660,'#FF6B9D'],[1000,660,'#FFB347']].forEach(([x,y,c])=>{
+  ctx.globalAlpha = .11;
+  [[80,40,'#FF6B9D'],[1120,55,'#FFB347'],[80,850,'#FF9BBB'],[1120,850,'#FF6B9D'],
+   [400,22,'#FFB347'],[800,22,'#FF9BBB'],[600,870,'#FF6B9D']].forEach(([x,y,c])=>{
     ctx.beginPath(); ctx.arc(x,y,8,0,Math.PI*2); ctx.fillStyle=c; ctx.fill();
   });
   ctx.globalAlpha = 1;
@@ -523,20 +523,35 @@ function drawCake() {
   if (chars.length === 0) {
     ctx.font='20px "Gmarket Sans",sans-serif';
     ctx.fillStyle='rgba(155,122,172,.5)'; ctx.textAlign='center';
-    ctx.fillText('이미지를 올리면 케이크에 꽂혀요 🕯️', cx, ctop-70);
+    ctx.fillText('이미지를 올리면 케이크에 꽂혀요 🕯️', cx, ctop-80);
   } else {
-    const n  = chars.length;
+    const n = chars.length;
 
-    // ✅ 핵심: 최소 크기를 28로 높여서 핸드폰에서도 잘 보이게
-    // 개수가 많아도 너무 작아지지 않도록
-    const cr = Math.min(52, Math.max(28, 62 - n * 1.2));
-    const sw = Math.max(4, cr * 0.13);
+    // 사진 크기 고정: 항상 크게! 개수 많아도 최소 38px
+    const cr = Math.min(55, Math.max(38, 60 - n * 0.5));
+    const sw = Math.max(5, cr * 0.13);
 
+    // 위치 계산
     let pos = getCandlePos(n, cx, ctop, rx, ryT);
-    pos = resolveOverlap(pos, cr * 2.4 + 8, cx, ctop, rx * 0.95, ryT * 0.95);
+    pos = resolveOverlap(pos, cr * 2.3 + 10, cx, ctop, rx * 0.94, ryT * 0.94);
 
+    // ✅ 각 초의 높이(초 길이)를 위치에 따라 결정
+    // 케이크 중심에 가까울수록 짧고, 멀수록 길게
+    // 또한 index가 클수록(나중에 추가된 초) 더 길게 → 위로 올라감
     pos.forEach(([px,py], i) => {
-      const sl  = 58 + (i%5)*10;
+      // 케이크 중심에서 얼마나 떨어졌는지 (0~1)
+      const distRatio = Math.sqrt(
+        Math.pow((px - cx) / rx, 2) +
+        Math.pow((py - ctop) / ryT, 2)
+      );
+
+      // 기본 초 길이: 60~200px
+      // 안쪽은 짧게, 바깥쪽+나중 추가된 것일수록 길게
+      const baseLen = 65;
+      const extraByDist  = distRatio * 60;           // 거리 기반 추가
+      const extraByIndex = Math.floor(i / 7) * 55;   // 7개마다 55px씩 더 위로
+      const sl = baseLen + extraByDist + extraByIndex;
+
       const icy = py - sl - cr;
 
       /* 초 막대 */
@@ -549,9 +564,9 @@ function drawCake() {
 
       /* 불꽃 */
       ctx.save(); ctx.globalAlpha=.92;
-      ctx.beginPath(); ctx.ellipse(px,py-sl-10,4,9,0,0,Math.PI*2);
+      ctx.beginPath(); ctx.ellipse(px,py-sl-10,4,10,0,0,Math.PI*2);
       ctx.fillStyle='#FFD700'; ctx.fill();
-      ctx.beginPath(); ctx.ellipse(px,py-sl-9,2.5,5.5,0,0,Math.PI*2);
+      ctx.beginPath(); ctx.ellipse(px,py-sl-9,2.5,6,0,0,Math.PI*2);
       ctx.fillStyle='#FF8C00'; ctx.fill();
       ctx.globalAlpha=1; ctx.restore();
 
@@ -559,7 +574,7 @@ function drawCake() {
       ctx.save();
       ctx.beginPath(); ctx.arc(px,icy,cr+4,0,Math.PI*2);
       ctx.fillStyle='#fff';
-      ctx.shadowColor='rgba(242,92,138,.35)'; ctx.shadowBlur=12; ctx.fill();
+      ctx.shadowColor='rgba(242,92,138,.4)'; ctx.shadowBlur=14; ctx.fill();
       ctx.restore();
       ctx.save();
       ctx.beginPath(); ctx.arc(px,icy,cr+4,0,Math.PI*2);
@@ -581,9 +596,9 @@ function drawCake() {
       }
 
       /* 이름 레이블 */
-      const nm = (chars[i].name||'').slice(0,7) + ((chars[i].name?.length||0)>7?'…':'');
+      const nm = (chars[i].name||'').slice(0,8) + ((chars[i].name?.length||0)>8?'…':'');
       if (nm) {
-        const fs = Math.max(11, Math.floor(cr*0.30));
+        const fs = Math.max(12, Math.floor(cr * 0.30));
         ctx.font = `bold ${fs}px "Gmarket Sans",sans-serif`;
         const tw = ctx.measureText(nm).width;
         const lx = px-tw/2-7, ly = icy+cr+6;
@@ -594,9 +609,9 @@ function drawCake() {
 
       /* 올린 사람 닉네임 */
       if (chars[i].nick) {
-        const fs = Math.max(10, Math.floor(cr*0.26));
+        const fs = Math.max(11, Math.floor(cr * 0.26));
         ctx.font = `${fs}px "Gmarket Sans",sans-serif`;
-        ctx.fillStyle='rgba(155,122,172,.8)'; ctx.textAlign='center';
+        ctx.fillStyle='rgba(155,122,172,.85)'; ctx.textAlign='center';
         ctx.fillText(chars[i].nick, px, icy-cr-8);
       }
 
@@ -606,7 +621,7 @@ function drawCake() {
 
   /* 서명 */
   ctx.font='bold 14px "Gmarket Sans",sans-serif';
-  ctx.fillStyle='rgba(155,122,172,.35)'; ctx.textAlign='center';
+  ctx.fillStyle='rgba(155,122,172,.32)'; ctx.textAlign='center';
   ctx.fillText(roomId?`가능충 케이크 · ${roomId}방`:'가능충 케이크 메이커', W/2, H-14);
 }
 
@@ -615,9 +630,6 @@ function getCandlePos(n, cx, cy, rx, ry) {
   if (n === 1) return [[cx, cy]];
 
   const pos = [];
-
-  // 안쪽→바깥쪽 링, r은 케이크 반지름 대비 비율
-  // 바깥 링(0.95)까지 꽉 사용
   const rings = [
     { r: 0.18, maxN: 2  },
     { r: 0.40, maxN: 7  },
@@ -631,7 +643,6 @@ function getCandlePos(n, cx, cy, rx, ry) {
     if (remaining <= 0) break;
     const ring  = rings[ri];
     const count = Math.min(remaining, ring.maxN);
-    // 홀짝 링마다 각도 엇갈림 → 지그재그
     const offset = (ri % 2 === 0) ? 0 : (Math.PI / count);
     for (let i = 0; i < count; i++) {
       const a = -Math.PI/2 + offset + (2*Math.PI / count) * i;
@@ -669,7 +680,7 @@ function resolveOverlap(pos, minDist, cx, cy, rx, ry) {
   return pos.map(([x,y]) => {
     const ddx = (x-cx)/rx, ddy = (y-cy)/ry;
     const d   = Math.sqrt(ddx*ddx + ddy*ddy);
-    if (d > 1) return [cx+(ddx/d)*rx*0.94, cy+(ddy/d)*ry*0.94];
+    if (d > 1) return [cx+(ddx/d)*rx*0.93, cy+(ddy/d)*ry*0.93];
     return [x, y];
   });
 }
