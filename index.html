@@ -308,9 +308,9 @@ function getCachedImg(src) {
   return (img && img.complete && img.naturalWidth) ? img : null;
 }
 
-/* ══════════════════════════════════════
+/* ══════════════════════════════
    케이크 그리기
-══════════════════════════════════════ */
+══════════════════════════════ */
 function drawCake() {
   const W = 1200, H = 900;
   ctx.clearRect(0, 0, W, H);
@@ -361,113 +361,122 @@ function drawCake() {
     return;
   }
 
-  const CR = 48;          // 사진 반지름 (고정, 크게)
-  const STICK = 70;       // 1층 초 길이 (고정, 낮게)
-  const GAP = 14;         // 사진 사이 최소 간격
-  const SLOT = CR*2 + GAP; // 한 자리 폭
+  const CR    = 48;   // 사진 반지름 (고정)
+  const STICK = 70;   // 1층 초 길이
+  const GAP   = 14;   // 사진 간 최소 간격
 
-  // 1층에 몇 개 들어가는지: 케이크 타원 위에 실제로 배치 가능한 수
-  // 타원 둘레 * 0.85 / SLOT
+  // 타원 둘레로 1층 최대 개수 계산
   const perim = Math.PI * (3*(rx+ryT) - Math.sqrt((3*rx+ryT)*(rx+3*ryT)));
-  const CAP = Math.max(3, Math.floor(perim * 0.85 / SLOT));
+  const CAP = Math.max(3, Math.floor(perim * 0.85 / (CR*2 + GAP)));
 
-  // 층별로 나누기
   const floor1 = chars.slice(0, CAP);
-  const floor2 = chars.slice(CAP, CAP * 2);
-  const floor3 = chars.slice(CAP * 2, CAP * 3);
+  const floor2 = chars.slice(CAP, CAP*2);
+  const floor3 = chars.slice(CAP*2, CAP*3);
 
-  // 층별로 그리기 (1층 먼저, 위층은 나중에 → 위에 그려짐)
-  drawFloor(floor1, 0, cx, ctop, rx, ryT, CR, STICK, GAP);
-  drawFloor(floor2, 1, cx, ctop, rx, ryT, CR, STICK, GAP);
-  drawFloor(floor3, 2, cx, ctop, rx, ryT, CR, STICK, GAP);
+  // ✅ 막대를 모든 층 먼저 다 그리고, 그 다음 사진을 모든 층 다 그리기
+  // → 막대가 항상 사진 뒤로 들어감
+  const allPositions = [];
+
+  [floor1, floor2, floor3].forEach((floorChars, fi) => {
+    if (floorChars.length === 0) return;
+    const positions = calcFloorPositions(floorChars, fi, cx, ctop, rx, ryT, CR, STICK);
+    allPositions.push({ floorChars, fi, positions });
+  });
+
+  // 1단계: 모든 층 막대 + 불꽃 먼저
+  allPositions.forEach(({ positions, fi }) => {
+    const slotH = CR*2 + 30;
+    const sl = STICK + fi * slotH;
+    positions.forEach(({ px, py }) => {
+      const sw = 7;
+      ctx.save();
+      const gg = ctx.createLinearGradient(px-sw/2, py, px+sw/2, py);
+      gg.addColorStop(0,'#E8B090'); gg.addColorStop(.4,'#C8956C'); gg.addColorStop(1,'#A07050');
+      ctx.strokeStyle=gg; ctx.lineWidth=sw; ctx.lineCap='round';
+      ctx.beginPath(); ctx.moveTo(px,py); ctx.lineTo(px,py-sl); ctx.stroke();
+      ctx.restore();
+
+      ctx.save(); ctx.globalAlpha=.92;
+      ctx.beginPath(); ctx.ellipse(px,py-sl-11,4,10,0,0,Math.PI*2); ctx.fillStyle='#FFD700'; ctx.fill();
+      ctx.beginPath(); ctx.ellipse(px,py-sl-10,2.5,6,0,0,Math.PI*2); ctx.fillStyle='#FF8C00'; ctx.fill();
+      ctx.globalAlpha=1; ctx.restore();
+    });
+  });
+
+  // 2단계: 모든 층 사진 + 이름 나중에
+  allPositions.forEach(({ floorChars, fi, positions }) => {
+    const slotH = CR*2 + 30;
+    const sl = STICK + fi * slotH;
+    positions.forEach(({ px, py }, i) => {
+      const icy = py - sl - CR;
+      const globalIdx = allChars.filter(c=>c.imgData).indexOf(floorChars[i]);
+
+      /* 흰 테두리 */
+      ctx.save();
+      ctx.beginPath(); ctx.arc(px,icy,CR+4,0,Math.PI*2);
+      ctx.fillStyle='#fff'; ctx.shadowColor='rgba(242,92,138,.4)'; ctx.shadowBlur=16; ctx.fill();
+      ctx.restore();
+      ctx.save();
+      ctx.beginPath(); ctx.arc(px,icy,CR+4,0,Math.PI*2);
+      ctx.strokeStyle='#FF9BBB'; ctx.lineWidth=3; ctx.stroke();
+      ctx.restore();
+
+      /* 사진 */
+      const img = getCachedImg(floorChars[i].imgData);
+      if (img) {
+        ctx.save();
+        ctx.beginPath(); ctx.arc(px,icy,CR,0,Math.PI*2); ctx.clip();
+        ctx.drawImage(img,px-CR,icy-CR,CR*2,CR*2);
+        ctx.restore();
+      } else {
+        ctx.save();
+        ctx.beginPath(); ctx.arc(px,icy,CR,0,Math.PI*2);
+        ctx.fillStyle='rgba(255,155,187,.3)'; ctx.fill();
+        ctx.restore();
+      }
+
+      /* 이름 */
+      const nm = (floorChars[i].name||'').slice(0,8) + ((floorChars[i].name?.length||0)>8?'…':'');
+      if (nm) {
+        ctx.font='bold 13px "Gmarket Sans",sans-serif';
+        const tw = ctx.measureText(nm).width;
+        const lx=px-tw/2-7, ly=icy+CR+6;
+        roundRectFill(ctx, lx, ly, tw+14, 21, 8, 'rgba(255,107,157,.18)');
+        ctx.fillStyle='#D94A78'; ctx.textAlign='center';
+        ctx.fillText(nm, px, ly+15);
+      }
+
+      /* 닉네임 */
+      if (floorChars[i].nick) {
+        ctx.font='11px "Gmarket Sans",sans-serif';
+        ctx.fillStyle='rgba(155,122,172,.85)'; ctx.textAlign='center';
+        ctx.fillText(floorChars[i].nick, px, icy-CR-9);
+      }
+
+      hitAreas.push({x:px, y:icy, r:CR+4, idx:globalIdx});
+    });
+  });
 
   ctx.font='bold 14px "Gmarket Sans",sans-serif';
   ctx.fillStyle='rgba(155,122,172,.32)'; ctx.textAlign='center';
   ctx.fillText(roomId?`가능충 케이크 · ${roomId}방`:'가능충 케이크 메이커', W/2, H-14);
 }
 
-function drawFloor(chars, floorIdx, cx, ctop, rx, ryT, CR, STICK, GAP) {
-  if (chars.length === 0) return;
+/* 층별 xy 위치만 계산해서 반환 */
+function calcFloorPositions(chars, floorIdx, cx, ctop, rx, ryT, CR, STICK) {
   const n = chars.length;
-
-  // 이 층의 초 길이: 층마다 (사진지름 + 여백)만큼 더 길게
-  const slotH = CR * 2 + 30; // 위층으로 올라가는 높이
-  const sl = STICK + floorIdx * slotH;
-
-  // 이 층의 배치 반지름: 위층일수록 살짝 안쪽
   const scale = 1 - floorIdx * 0.08;
   const frx = rx * 0.88 * scale;
   const fry = ryT * 0.88 * scale;
-
-  // 각도 오프셋: 층마다 엇갈리게 → 초들이 겹치지 않게
   const angleOffset = floorIdx % 2 === 0 ? -Math.PI/2 : -Math.PI/2 + Math.PI/n;
 
-  for (let i = 0; i < n; i++) {
-    const a = angleOffset + (2 * Math.PI / n) * i;
-    const px = cx + Math.cos(a) * frx;
-    const py = ctop + Math.sin(a) * fry;
-    const icy = py - sl - CR;
-
-    /* 초 막대 */
-    ctx.save();
-    const sw = 7;
-    const gg = ctx.createLinearGradient(px-sw/2, py, px+sw/2, py);
-    gg.addColorStop(0,'#E8B090'); gg.addColorStop(.4,'#C8956C'); gg.addColorStop(1,'#A07050');
-    ctx.strokeStyle=gg; ctx.lineWidth=sw; ctx.lineCap='round';
-    ctx.beginPath(); ctx.moveTo(px,py); ctx.lineTo(px,py-sl); ctx.stroke();
-    ctx.restore();
-
-    /* 불꽃 */
-    ctx.save(); ctx.globalAlpha=.92;
-    ctx.beginPath(); ctx.ellipse(px,py-sl-11,4,10,0,0,Math.PI*2); ctx.fillStyle='#FFD700'; ctx.fill();
-    ctx.beginPath(); ctx.ellipse(px,py-sl-10,2.5,6,0,0,Math.PI*2); ctx.fillStyle='#FF8C00'; ctx.fill();
-    ctx.globalAlpha=1; ctx.restore();
-
-    /* 흰 테두리 */
-    ctx.save();
-    ctx.beginPath(); ctx.arc(px,icy,CR+4,0,Math.PI*2);
-    ctx.fillStyle='#fff'; ctx.shadowColor='rgba(242,92,138,.4)'; ctx.shadowBlur=16; ctx.fill();
-    ctx.restore();
-    ctx.save();
-    ctx.beginPath(); ctx.arc(px,icy,CR+4,0,Math.PI*2);
-    ctx.strokeStyle='#FF9BBB'; ctx.lineWidth=3; ctx.stroke();
-    ctx.restore();
-
-    /* 사진 */
-    const globalIdx = allChars.filter(c=>c.imgData).indexOf(chars[i]);
-    const img = getCachedImg(chars[i].imgData);
-    if (img) {
-      ctx.save();
-      ctx.beginPath(); ctx.arc(px,icy,CR,0,Math.PI*2); ctx.clip();
-      ctx.drawImage(img,px-CR,icy-CR,CR*2,CR*2);
-      ctx.restore();
-    } else {
-      ctx.save();
-      ctx.beginPath(); ctx.arc(px,icy,CR,0,Math.PI*2);
-      ctx.fillStyle='rgba(255,155,187,.3)'; ctx.fill();
-      ctx.restore();
-    }
-
-    /* 이름 */
-    const nm = (chars[i].name||'').slice(0,8) + ((chars[i].name?.length||0)>8?'…':'');
-    if (nm) {
-      ctx.font='bold 13px "Gmarket Sans",sans-serif';
-      const tw = ctx.measureText(nm).width;
-      const lx=px-tw/2-7, ly=icy+CR+6;
-      roundRectFill(ctx, lx, ly, tw+14, 21, 8, 'rgba(255,107,157,.18)');
-      ctx.fillStyle='#D94A78'; ctx.textAlign='center';
-      ctx.fillText(nm, px, ly+15);
-    }
-
-    /* 닉네임 */
-    if (chars[i].nick) {
-      ctx.font='11px "Gmarket Sans",sans-serif';
-      ctx.fillStyle='rgba(155,122,172,.85)'; ctx.textAlign='center';
-      ctx.fillText(chars[i].nick, px, icy-CR-9);
-    }
-
-    hitAreas.push({x:px, y:icy, r:CR+4, idx: globalIdx});
-  }
+  return Array.from({length: n}, (_, i) => {
+    const a = angleOffset + (2*Math.PI/n)*i;
+    return {
+      px: cx + Math.cos(a)*frx,
+      py: ctop + Math.sin(a)*fry,
+    };
+  });
 }
 
 function roundRectFill(ctx, x, y, w, h, r, color) {
