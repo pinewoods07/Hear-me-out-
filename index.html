@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🎂 가능충 케이크 메이커</title>
+<link href="https://fonts.googleapis.com/css2?family=Gmarket+Sans:wght@300;500;700&family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
+
+<!--
+  ┌──────────────────────────────────────────────────────┐
+  │  Firebase 설정 방법 (5분이면 됨!)                       │
+  │                                                       │
+  │  1. https://firebase.google.com 접속 후 로그인         │
+  │  2. "프로젝트 만들기" → 이름 입력 → 계속               │
+  │  3. 왼쪽 메뉴 "빌드" → "Realtime Database"            │
+  │  4. "데이터베이스 만들기" → 테스트 모드 선택            │
+  │  5. 왼쪽 상단 톱니바퀴 → 프로젝트 설정 → 앱 추가(</>)  │
+  │  6. 아래 firebaseConfig 부분을 복사한 값으로 교체!     │
+  └──────────────────────────────────────────────────────┘
+-->
+
+<script type="module">
+import { initializeApp }
+  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getDatabase, ref, set, push, onValue, remove }
+  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+/* ===== 여기를 본인의 Firebase 설정으로 교체! ===== */
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyBoY74yoHgoT2zO47B7lqf5keaxPepAYrk",
+  authDomain: "cake-a62cb.firebaseapp.com",
+  projectId: "cake-a62cb",
+  storageBucket: "cake-a62cb.firebasestorage.app",
+  messagingSenderId: "884469524808",
+  appId: "1:884469524808:web:92c5b123ec2a0aacf8eb7d",
+  measurementId: "G-CKKGJ0V1XT"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+/* ================================================= */
+
+try {
+  const app = initializeApp(firebaseConfig);
+  const db  = getDatabase(app);
+  window._fb = { db, ref, set, push, onValue, remove };
+  window.dispatchEvent(new Event('firebase-ready'));
+} catch(e) {
+  window.dispatchEvent(new Event('firebase-error'));
+}
+</script>
+
+<style>
+:root {
+  --cream: #FFF8F0;
+  --pink:  #FF6B9D;
+  --cake1: #F25C8A;
+  --cake2: #D94A78;
+  --cake3: #FF9BBB;
+  --dark:  #2D1B33;
+  --text:  #4A2060;
+  --muted: #9B7AAC;
+  --green: #4CAF50;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Gmarket Sans', 'Noto Sans KR', sans-serif;
+  background: var(--cream); color: var(--dark);
+  min-height: 100vh; overflow-x: hidden;
+}
+body::before {
+  content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  background:
+    radial-gradient(circle at 15% 20%, rgba(255,107,157,.12) 0%, transparent 50%),
+    radial-gradient(circle at 85% 75%, rgba(255,179,71,.10)  0%, transparent 50%);
+}
+.screen { display: none; position: relative; z-index: 1; }
+.screen.active { display: block; }
+
+/* ── HOME ── */
+#homeScreen {
+  max-width: 480px; margin: 0 auto;
+  padding: 3rem 1.5rem 4rem; text-align: center;
+}
+.logo { font-size: clamp(2.2rem,8vw,3.2rem); margin-bottom: .4rem; }
+.logo-title {
+  font-size: clamp(1.4rem,5vw,2rem); font-weight: 700;
+  color: var(--cake1); letter-spacing: -.02em; line-height: 1.2; margin-bottom: 6px;
+}
+.logo-sub { font-size: 13px; color: var(--muted); font-weight: 300; margin-bottom: 2.5rem; }
+
+.hcard {
+  background: #fff; border-radius: 20px; padding: 1.5rem; margin-bottom: 1rem;
+  box-shadow: 0 2px 20px rgba(45,27,51,.06); border: 1px solid rgba(242,92,138,.08);
+  text-align: left;
+}
+.hcard h3 {
+  font-size: 12px; font-weight: 700; color: var(--muted);
+  text-transform: uppercase; letter-spacing: .08em; margin-bottom: .9rem;
+}
+
+/* ── ROOM ── */
+#roomScreen {
+  max-width: 720px; margin: 0 auto;
+  padding: 1.5rem 1.25rem 4rem;
+}
+.room-header {
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 8px; margin-bottom: 1.25rem;
+}
+.room-header h2 { font-size: 16px; font-weight: 700; color: var(--text); }
+.code-badge {
+  display: flex; align-items: center; gap: 8px;
+  background: #fff; border: 1px solid rgba(242,92,138,.2);
+  border-radius: 999px; padding: 6px 14px; font-size: 13px;
+}
+.code-badge .code { font-weight: 700; color: var(--cake1); font-size: 15px; letter-spacing: .08em; }
+.copy-btn {
+  background: none; border: none; cursor: pointer;
+  font-size: 14px; color: var(--muted); padding: 2px; transition: color .15s;
+}
+.copy-btn:hover { color: var(--pink); }
+
+.card {
+  background: #fff; border-radius: 20px; padding: 1.5rem; margin-bottom: 1.25rem;
+  box-shadow: 0 2px 20px rgba(45,27,51,.06); border: 1px solid rgba(242,92,138,.08);
+}
+.card-title {
+  font-size: 12px; font-weight: 700; color: var(--muted);
+  text-transform: uppercase; letter-spacing: .08em; margin-bottom: 1rem;
+}
+
+.participants { display: flex; flex-wrap: wrap; gap: 8px; }
+.pchip {
+  display: flex; align-items: center; gap: 6px;
+  background: rgba(255,107,157,.07); border: 1px solid rgba(242,92,138,.15);
+  border-radius: 999px; padding: 4px 10px; font-size: 12px; font-weight: 700;
+  color: var(--text); animation: popIn .2s cubic-bezier(.34,1.56,.64,1);
+}
+.pchip .dot { width:6px; height:6px; border-radius:50%; background:var(--green); flex-shrink:0; }
+.me-badge {
+  font-size: 10px; color: var(--pink);
+  background: rgba(255,107,157,.12); border-radius: 999px; padding: 1px 6px;
+}
+@keyframes popIn { from{transform:scale(.7);opacity:0} to{transform:scale(1);opacity:1} }
+
+.upload-zone {
+  border: 2px dashed rgba(242,92,138,.3); border-radius: 14px;
+  padding: 1.25rem 1rem; text-align: center; cursor: pointer;
+  transition: all .2s; background: rgba(255,107,157,.03);
+}
+.upload-zone:hover { border-color: var(--pink); background: rgba(255,107,157,.06); }
+.upload-zone input { display: none; }
+.upload-zone .ico { font-size: 28px; line-height: 1; }
+.upload-zone p { font-size: 13px; color: var(--muted); margin-top: 6px; font-weight: 300; }
+.upload-zone strong { color: var(--pink); }
+
+.my-items { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.mychip {
+  display: flex; align-items: center; gap: 8px;
+  background: rgba(255,107,157,.07); border: 1px solid rgba(242,92,138,.15);
+  border-radius: 999px; padding: 5px 10px 5px 5px;
+}
+.mychip img { width:30px; height:30px; border-radius:50%; object-fit:cover; }
+.mychip input {
+  border: none; background: transparent; font-family: inherit;
+  font-size: 13px; color: var(--text); width: 72px; outline: none; font-weight: 500;
+}
+.mychip button {
+  border: none; background: rgba(242,92,138,.12); color: var(--pink);
+  border-radius: 50%; width: 18px; height: 18px; cursor: pointer;
+  font-size: 12px; line-height: 18px; text-align: center; padding: 0;
+}
+
+.cake-stage {
+  background: linear-gradient(160deg,#FFF0FA 0%,#FFF8F0 100%);
+  border-radius: 16px; text-align: center; padding: 1rem .5rem;
+}
+#cakeCanvas { display: block; margin: 0 auto; max-width: 100%; cursor: default; }
+
+.actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+/* ── INPUTS / BUTTONS ── */
+input[type="text"] {
+  width: 100%; padding: 10px 14px;
+  border: 1.5px solid rgba(155,122,172,.25); border-radius: 12px;
+  font-family: inherit; font-size: 14px; color: var(--text);
+  background: rgba(255,107,157,.03); outline: none; transition: border-color .15s;
+}
+input[type="text"]:focus { border-color: var(--pink); background: rgba(255,107,157,.05); }
+
+button.btn {
+  font-family: inherit; font-size: 13px; font-weight: 700;
+  padding: 10px 20px; border-radius: 999px;
+  cursor: pointer; transition: all .15s; border: none;
+}
+button.btn:active { transform: scale(.97); }
+.btn-main { background: var(--pink); color: #fff; box-shadow: 0 4px 14px rgba(255,107,157,.35); }
+.btn-main:hover { background: var(--cake1); }
+.btn-sub  { background: rgba(45,27,51,.06); color: var(--text); }
+.btn-sub:hover { background: rgba(45,27,51,.12); }
+.btn-leave { background: rgba(242,92,138,.08); color: var(--cake2); }
+.btn-leave:hover { background: rgba(242,92,138,.18); }
+
+/* ── MODAL ── */
+.modal-bg {
+  display: none; position: fixed; inset: 0;
+  background: rgba(45,27,51,.65); z-index: 1000;
+  align-items: center; justify-content: center; backdrop-filter: blur(6px);
+}
+.modal-bg.open { display: flex; }
+.modal-box {
+  background: #fff; border-radius: 20px; padding: 1.5rem;
+  max-width: 340px; width: 90%; text-align: center;
+  animation: modalPop .25s cubic-bezier(.34,1.56,.64,1); position: relative;
+}
+@keyframes modalPop { from{transform:scale(.7);opacity:0} to{transform:scale(1);opacity:1} }
+.modal-box img {
+  width: 200px; height: 200px; border-radius: 50%; object-fit: cover;
+  border: 4px solid var(--pink); box-shadow: 0 8px 30px rgba(255,107,157,.3); margin-bottom: 1rem;
+}
+.modal-name  { font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+.modal-owner { font-size: 12px; color: var(--muted); margin-bottom: 1rem; font-weight: 300; }
+.modal-tag {
+  display: inline-block; background: rgba(255,107,157,.1); color: var(--pink);
+  border-radius: 999px; font-size: 13px; font-weight: 700; padding: 4px 14px;
+}
+.modal-close {
+  position: absolute; top: 12px; right: 14px;
+  background: rgba(45,27,51,.07); border: none; border-radius: 50%;
+  width: 30px; height: 30px; font-size: 16px; cursor: pointer;
+  color: var(--muted); display: flex; align-items: center; justify-content: center;
+}
+.modal-close:hover { background: rgba(242,92,138,.15); }
+
+/* ── TOAST ── */
+.toast {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+  background: var(--dark); color: #fff; padding: 10px 20px;
+  border-radius: 999px; font-size: 13px; font-weight: 500;
+  opacity: 0; transition: opacity .3s; z-index: 2000; pointer-events: none; white-space: nowrap;
+}
+.toast.show { opacity: 1; }
+
+/* ── SETUP NOTICE ── */
+.setup-notice {
+  background: #fffbf0; border: 1.5px solid #FFE082;
+  border-radius: 14px; padding: 1rem 1.2rem; margin-bottom: 1rem; font-size: 13px;
+  color: #7A5500; line-height: 1.7; font-weight: 300;
+}
+.setup-notice strong { font-weight: 700; }
+.setup-notice a { color: var(--pink); font-weight: 700; }
+.setup-notice code {
+  background: rgba(255,107,157,.1); padding: 2px 6px;
+  border-radius: 6px; font-size: 11px; font-family: monospace;
+}
+
+footer { text-align:center; font-size:12px; color:var(--muted); margin-top:3rem; font-weight:300; }
+footer span { color: var(--pink); }
+</style>
+</head>
+<body>
+
+<!-- ══ HOME ══ -->
+<div id="homeScreen" class="screen active">
+  <div class="logo">🎂</div>
+  <h1 class="logo-title">가능충 케이크 메이커</h1>
+  <p class="logo-sub">친구들과 같이 케이크 꽂아버리기</p>
+
+  <div id="fbNotice" class="setup-notice" style="text-align:left;">
+    ⚠️ <strong>Firebase 설정 필요</strong><br>
+    온라인 기능을 쓰려면 이 파일 상단의 <code>firebaseConfig</code>를
+    본인 Firebase 설정으로 교체해야 해.<br>
+    <a href="https://firebase.google.com" target="_blank">firebase.google.com</a>
+    → 프로젝트 생성 → Realtime Database (테스트 모드)<br>
+    설정 완료 후 이 메시지는 사라져.
+  </div>
+
+  <div class="hcard">
+    <h3>닉네임</h3>
+    <input type="text" id="nickInput" placeholder="닉네임 입력 (최대 10자)" maxlength="10">
+  </div>
+
+  <div class="hcard">
+    <h3>방 만들기</h3>
+    <button class="btn btn-main" id="createBtn" onclick="createRoom()" style="width:100%;">
+      🎉 새 방 만들기
+    </button>
+  </div>
+
+  <div class="hcard">
+    <h3>방 입장 (코드로)</h3>
+    <div style="display:flex;gap:8px;">
+      <input type="text" id="joinCodeInput" placeholder="방 코드 6자리"
+             maxlength="6" style="text-transform:uppercase;letter-spacing:.1em;font-weight:700;">
+      <button class="btn btn-main" id="joinBtn" onclick="joinRoom()" style="white-space:nowrap;">입장</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ ROOM ══ -->
+<div id="roomScreen" class="screen">
+  <div class="room-header">
+    <h2 id="roomTitle">방</h2>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+      <div class="code-badge">
+        방 코드 <span class="code" id="roomCodeDisplay"></span>
+        <button class="copy-btn" onclick="copyCode()" title="링크 복사">📋</button>
+      </div>
+      <button class="btn btn-leave" onclick="leaveRoom()">나가기</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">참여자</div>
+    <div class="participants" id="participantList">
+      <span style="font-size:13px;color:var(--muted);font-weight:300;">연결 중...</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">내 가능충 추가</div>
+    <div class="upload-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
+      <input type="file" id="fileInput" accept="image/*" multiple>
+      <div class="ico">🖼️</div>
+      <p><strong>클릭</strong>하거나 드래그해서 이미지 추가</p>
+    </div>
+    <div class="my-items" id="myItems"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">케이크 미리보기 · 클릭하면 크게 보임</div>
+    <div class="cake-stage">
+      <canvas id="cakeCanvas" width="580" height="440"></canvas>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">저장</div>
+    <div class="actions">
+      <button class="btn btn-main" onclick="downloadCake()">🎂 이미지로 저장</button>
+    </div>
+  </div>
+
+  <footer>made with <span>♥</span> for ganeungchung connoisseurs</footer>
+</div>
+
+<!-- MODAL -->
+<div class="modal-bg" id="modalBg" onclick="closeModal(event)">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal()">×</button>
+    <img id="modalImg" src="" alt="">
+    <div class="modal-name" id="modalName"></div>
+    <div class="modal-owner" id="modalOwner"></div>
+    <div class="modal-tag">가능 ✓</div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ══ 전역 상태 ══ */
+let fbDB, fbRef, fbSet, fbPush, fbOnValue, fbRemove;
+let fbReady = false;
+
+let myNick = '';
+let myUID  = 'u' + Math.random().toString(36).slice(2, 9);
+let roomId = null;
+let allChars  = [];   // DB에서 온 전체 아이템
+let hitAreas  = [];
+let unsubs    = [];
+
+const canvas = document.getElementById('cakeCanvas');
+const ctx    = canvas.getContext('2d');
+const imgCache = {};
+
+/* ══ Firebase 이벤트 ══ */
+window.addEventListener('firebase-ready', () => {
+  const fb = window._fb;
+  fbDB = fb.db; fbRef = fb.ref; fbSet = fb.set;
+  fbPush = fb.push; fbOnValue = fb.onValue; fbRemove = fb.remove;
+  fbReady = true;
+  document.getElementById('fbNotice').style.display = 'none';
+});
+window.addEventListener('firebase-error', () => {
+  // config 미설정 상태 — 안내 유지
+});
+
+/* ══ 초기화 ══ */
+window.addEventListener('DOMContentLoaded', () => {
+  const params = new URLSearchParams(location.search);
+  const code = params.get('room');
+  if (code) document.getElementById('joinCodeInput').value = code.toUpperCase();
+  document.getElementById('nickInput').value = localStorage.getItem('gnick') || '';
+  drawCake();
+});
+
+/* ══ 드래그 드롭 ══ */
+const dz = document.getElementById('dropZone');
+if (dz) {
+  dz.addEventListener('dragover', e => { e.preventDefault(); dz.style.borderColor='#FF6B9D'; });
+  dz.addEventListener('dragleave', () => { dz.style.borderColor=''; });
+  dz.addEventListener('drop', e => {
+    e.preventDefault(); dz.style.borderColor='';
+    addFiles(e.dataTransfer.files);
+  });
+}
+document.getElementById('fileInput').addEventListener('change', e => addFiles(e.target.files));
+
+/* ══ 방 만들기 ══ */
+async function createRoom() {
+  if (!checkFB()) return;
+  myNick = getNick(); if (!myNick) return;
+  roomId = Math.random().toString(36).slice(2, 8).toUpperCase();
+  await enterRoom();
+}
+
+/* ══ 방 입장 ══ */
+async function joinRoom() {
+  if (!checkFB()) return;
+  myNick = getNick(); if (!myNick) return;
+  const code = document.getElementById('joinCodeInput').value.trim().toUpperCase();
+  if (code.length !== 6) { toast('방 코드를 6자리로 입력해줘'); return; }
+  roomId = code;
+  await enterRoom();
+}
+
+async function enterRoom() {
+  localStorage.setItem('gnick', myNick);
+
+  /* 참여자 등록 */
+  await fbSet(fbRef(fbDB, `rooms/${roomId}/participants/${myUID}`), {
+    nick: myNick, joinedAt: Date.now()
+  });
+
+  /* 화면 전환 */
+  document.getElementById('homeScreen').classList.remove('active');
+  document.getElementById('roomScreen').classList.add('active');
+  document.getElementById('roomCodeDisplay').textContent = roomId;
+  document.getElementById('roomTitle').textContent = `🎂 ${roomId} 방`;
+  history.replaceState({}, '', `?room=${roomId}`);
+
+  startListeners();
+}
+
+function startListeners() {
+  /* 참여자 실시간 */
+  const u1 = fbOnValue(fbRef(fbDB, `rooms/${roomId}/participants`), snap => {
+    renderParticipants(snap.val() || {});
+  });
+  /* 아이템 실시간 */
+  const u2 = fbOnValue(fbRef(fbDB, `rooms/${roomId}/items`), snap => {
+    const data = snap.val() || {};
+    allChars = Object.entries(data)
+      .map(([k, v]) => ({ ...v, key: k }))
+      .sort((a, b) => (a.ts||0) - (b.ts||0));
+    preloadImages();
+    renderMyItems();
+    drawCake();
+  });
+  unsubs = [u1, u2];
+}
+
+/* ══ 참여자 렌더 ══ */
+function renderParticipants(data) {
+  const list = document.getElementById('participantList');
+  list.innerHTML = '';
+  Object.entries(data).forEach(([uid, p]) => {
+    const chip = document.createElement('div');
+    chip.className = 'pchip';
+    chip.innerHTML = `<div class="dot"></div><span>${p.nick||'익명'}</span>`
+      + (uid === myUID ? '<span class="me-badge">나</span>' : '');
+    list.appendChild(chip);
+  });
+}
+
+/* ══ 파일 추가 ══ */
+function addFiles(files) {
+  Array.from(files).forEach(file => {
+    if (!file.type.startsWith('image/')) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      const img = new Image();
+      img.onload = () => {
+        const compressed = compressImage(img, 200);
+        fbPush(fbRef(fbDB, `rooms/${roomId}/items`), {
+          uid: myUID, nick: myNick,
+          name: file.name.replace(/\.[^.]+$/, '').slice(0, 10),
+          imgData: compressed, ts: Date.now()
+        });
+      };
+      img.src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+  document.getElementById('fileInput').value = '';
+}
+
+/* ══ 내 아이템 렌더 ══ */
+function renderMyItems() {
+  const wrap = document.getElementById('myItems');
+  const mine = allChars.filter(c => c.uid === myUID);
+  wrap.innerHTML = '';
+  mine.forEach(c => {
+    const chip = document.createElement('div'); chip.className = 'mychip';
+    const img = document.createElement('img'); img.src = c.imgData;
+    const inp = document.createElement('input');
+    inp.value = c.name || ''; inp.placeholder = '이름'; inp.maxLength = 10;
+    inp.oninput = e => fbSet(fbRef(fbDB,`rooms/${roomId}/items/${c.key}/name`), e.target.value);
+    const btn = document.createElement('button');
+    btn.textContent = '×';
+    btn.onclick = () => fbRemove(fbRef(fbDB,`rooms/${roomId}/items/${c.key}`));
+    chip.append(img, inp, btn);
+    wrap.appendChild(chip);
+  });
+}
+
+/* ══ 이미지 프리로드 ══ */
+function preloadImages() {
+  allChars.forEach(c => {
+    if (!c.imgData || imgCache[c.imgData]) return;
+    const img = new Image();
+    img.onload = () => { imgCache[c.imgData] = img; drawCake(); };
+    img.src = c.imgData;
+    imgCache[c.imgData] = img; // placeholder (might not be complete yet)
+  });
+}
+
+function getCachedImg(src) {
+  if (!src) return null;
+  const img = imgCache[src];
+  return img && img.complete && img.naturalWidth ? img : null;
+}
+
+/* ══ 케이크 그리기 ══ */
+function drawCake() {
+  const W = 580, H = 440;
+  ctx.clearRect(0, 0, W, H);
+  hitAreas = [];
+
+  const cx = W/2, cbottom = H-40, ctop = cbottom-130;
+  const rx = 200, ryT = 44, ryB = 28;
+
+  /* 배경 장식 */
+  ctx.globalAlpha = .18;
+  [[60,30,'#FF6B9D'],[520,50,'#FFB347'],[80,400,'#FF9BBB'],[500,380,'#FF6B9D']].forEach(([x,y,c])=>{
+    ctx.beginPath(); ctx.arc(x,y,6,0,Math.PI*2); ctx.fillStyle=c; ctx.fill();
+  });
+  ctx.globalAlpha = 1;
+
+  /* 케이크 */
+  efill(cx, cbottom, rx, ryB, '#D94A78');
+
+  ctx.beginPath();
+  ctx.moveTo(cx-rx, ctop); ctx.lineTo(cx-rx, cbottom);
+  ctx.ellipse(cx, cbottom, rx, ryB, 0, Math.PI, 0);
+  ctx.lineTo(cx+rx, ctop); ctx.closePath();
+  const sg = ctx.createLinearGradient(cx-rx,ctop,cx+rx,cbottom);
+  sg.addColorStop(0,'#F25C8A'); sg.addColorStop(.5,'#E8547F'); sg.addColorStop(1,'#D94A78');
+  ctx.fillStyle = sg; ctx.fill();
+
+  /* 크림 흘림 */
+  for (let i=0;i<9;i++) {
+    const a=Math.PI/8*i;
+    const ex=cx+Math.cos(Math.PI-a)*rx*.98, ey=ctop+Math.sin(Math.PI-a)*ryT*.5;
+    const dl=12+(i%3)*8;
+    ctx.beginPath(); ctx.moveTo(ex,ey-2);
+    ctx.bezierCurveTo(ex-2,ey+dl*.5,ex+2,ey+dl*.8,ex,ey+dl);
+    ctx.strokeStyle='#FFF0F5'; ctx.lineWidth=7; ctx.lineCap='round'; ctx.stroke();
+  }
+
+  efill(cx, ctop, rx, ryT, '#FF9BBB');
+  estroke(cx, ctop, rx, ryT, '#FFF0F5', 6);
+
+  [0,.55,1.1,1.65,2.2,2.75,3.3,3.85,4.4,4.95,5.5,6.05].forEach(a=>{
+    ctx.beginPath(); ctx.arc(cx+Math.cos(a)*rx*.82, ctop+Math.sin(a)*ryT*.82, 5, 0, Math.PI*2);
+    ctx.fillStyle='#FFF0F5'; ctx.fill();
+  });
+  [.28,1.38,2.48,3.58,4.68,5.78].forEach(a=>
+    drawStrawberry(cx+Math.cos(a)*rx*.55, ctop+Math.sin(a)*ryT*.55, 9));
+
+  /* ── 초들 ── */
+  const chars = allChars.filter(c=>c.imgData);
+  if (chars.length === 0) {
+    ctx.font='14px "Gmarket Sans",sans-serif'; ctx.fillStyle='rgba(155,122,172,.5)'; ctx.textAlign='center';
+    ctx.fillText('이미지를 올리면 케이크에 꽂혀요 🕯️', cx, ctop-50);
+  } else {
+    const n=chars.length;
+    const cr=Math.min(46,Math.max(24,86-n*5));
+    const sw=Math.max(5,cr*.18);
+    const pos=getCandlePos(n,cx,ctop,rx*.72,ryT*.72);
+
+    pos.forEach(([px,py],i)=>{
+      const sl=60+(i%4)*16;
+      const icy=py-sl-cr;
+
+      /* 막대 */
+      ctx.save();
+      const gg=ctx.createLinearGradient(px-sw,py,px+sw,py);
+      gg.addColorStop(0,'#E8B090'); gg.addColorStop(.4,'#C8956C'); gg.addColorStop(1,'#A07050');
+      ctx.strokeStyle=gg; ctx.lineWidth=sw; ctx.lineCap='round';
+      ctx.beginPath(); ctx.moveTo(px,py); ctx.lineTo(px,py-sl); ctx.stroke();
+      ctx.restore();
+
+      /* 불꽃 */
+      ctx.save(); ctx.globalAlpha=.9;
+      ctx.beginPath(); ctx.ellipse(px,py-sl-10,4,8,0,0,Math.PI*2);
+      ctx.fillStyle='#FFD700'; ctx.fill();
+      ctx.beginPath(); ctx.ellipse(px,py-sl-9,2.5,5,0,0,Math.PI*2);
+      ctx.fillStyle='#FF8C00'; ctx.fill();
+      ctx.globalAlpha=1; ctx.restore();
+
+      /* 사진 테두리 */
+      ctx.save();
+      ctx.beginPath(); ctx.arc(px,icy,cr+3,0,Math.PI*2);
+      ctx.fillStyle='#fff'; ctx.shadowColor='rgba(242,92,138,.3)'; ctx.shadowBlur=10; ctx.fill();
+      ctx.restore();
+      ctx.save();
+      ctx.beginPath(); ctx.arc(px,icy,cr+3,0,Math.PI*2);
+      ctx.strokeStyle='#FF9BBB'; ctx.lineWidth=2.5; ctx.stroke();
+      ctx.restore();
+
+      /* 사진 */
+      const img=getCachedImg(chars[i].imgData);
+      if (img) {
+        ctx.save();
+        ctx.beginPath(); ctx.arc(px,icy,cr,0,Math.PI*2); ctx.clip();
+        ctx.drawImage(img,px-cr,icy-cr,cr*2,cr*2);
+        ctx.restore();
+      } else {
+        /* 로딩 중 placeholder */
+        ctx.save();
+        ctx.beginPath(); ctx.arc(px,icy,cr,0,Math.PI*2);
+        ctx.fillStyle='rgba(255,155,187,.25)'; ctx.fill();
+        ctx.restore();
+      }
+
+      /* 이름 레이블 */
+      const nm=(chars[i].name||'').slice(0,7)+(chars[i].name&&chars[i].name.length>7?'…':'');
+      if (nm) {
+        ctx.font='bold 11px "Gmarket Sans",sans-serif';
+        const tw=ctx.measureText(nm).width;
+        const lx=px-tw/2-7, ly=icy+cr+6;
+        ctx.beginPath(); ctx.roundRect(lx,ly,tw+14,18,9);
+        ctx.fillStyle='rgba(255,107,157,.12)'; ctx.fill();
+        ctx.fillStyle='#D94A78'; ctx.textAlign='center';
+        ctx.fillText(nm,px,ly+13);
+      }
+
+      /* 참여자 이름 */
+      if (chars[i].nick) {
+        ctx.font='10px "Gmarket Sans",sans-serif';
+        ctx.fillStyle='rgba(155,122,172,.7)'; ctx.textAlign='center';
+        ctx.fillText(chars[i].nick, px, icy-cr-8);
+      }
+
+      hitAreas.push({x:px,y:icy,r:cr+3,idx:i});
+    });
+  }
+
+  /* 방 코드 서명 */
+  ctx.font='bold 12px "Gmarket Sans",sans-serif';
+  ctx.fillStyle='rgba(155,122,172,.38)'; ctx.textAlign='center';
+  ctx.fillText(roomId ? `가능충 케이크 · ${roomId}방` : '가능충 케이크 메이커', W/2, H-10);
+}
+
+/* ══ 초 위치 계산 ══ */
+function getCandlePos(n,cx,cy,rx,ry) {
+  if (n===1) return [[cx,cy]];
+  if (n<=8) {
+    const step=-Math.PI/2, ao=(2*Math.PI)/n, r=n<=3?.45:.65;
+    return Array.from({length:n},(_,i)=>
+      [cx+Math.cos(step+i*ao)*rx*r, cy+Math.sin(step+i*ao)*ry*r]);
+  }
+  const inner=Math.min(4,Math.floor(n*.35)), outer=n-inner;
+  const ao=(2*Math.PI)/outer, ai=(2*Math.PI)/Math.max(inner,1);
+  const pos=[];
+  for(let i=0;i<outer;i++) pos.push([cx+Math.cos(-Math.PI/2+i*ao)*rx*.78, cy+Math.sin(-Math.PI/2+i*ao)*ry*.78]);
+  for(let i=0;i<inner;i++) pos.push([cx+Math.cos(-Math.PI/2+i*ai+ao/2)*rx*.38, cy+Math.sin(-Math.PI/2+i*ai+ao/2)*ry*.38]);
+  return pos;
+}
+
+/* ══ 클릭 ══ */
+canvas.addEventListener('click', e => {
+  const r=canvas.getBoundingClientRect();
+  const mx=(e.clientX-r.left)*(canvas.width/r.width);
+  const my=(e.clientY-r.top)*(canvas.height/r.height);
+  for (const a of hitAreas) {
+    if (Math.hypot(mx-a.x,my-a.y)<=a.r) {
+      openModal(allChars.filter(c=>c.imgData)[a.idx]); return;
+    }
+  }
+});
+canvas.addEventListener('mousemove', e => {
+  const r=canvas.getBoundingClientRect();
+  const mx=(e.clientX-r.left)*(canvas.width/r.width);
+  const my=(e.clientY-r.top)*(canvas.height/r.height);
+  canvas.style.cursor=hitAreas.some(a=>Math.hypot(mx-a.x,my-a.y)<=a.r)?'pointer':'default';
+});
+
+/* ══ 모달 ══ */
+function openModal(c) {
+  document.getElementById('modalImg').src = c.imgData;
+  document.getElementById('modalName').textContent  = c.name || '무명의 가능충';
+  document.getElementById('modalOwner').textContent = `꽂은 사람: ${c.nick||'?'}`;
+  document.getElementById('modalBg').classList.add('open');
+}
+function closeModal(e) {
+  if (!e||e.target===document.getElementById('modalBg'))
+    document.getElementById('modalBg').classList.remove('open');
+}
+document.addEventListener('keydown', e => { if(e.key==='Escape') closeModal(); });
+
+/* ══ 나가기 ══ */
+async function leaveRoom() {
+  if (roomId) {
+    try { await fbRemove(fbRef(fbDB,`rooms/${roomId}/participants/${myUID}`)); } catch(_){}
+  }
+  unsubs.forEach(u=>{ try{u();}catch(_){} });
+  unsubs=[]; allChars=[]; roomId=null;
+  history.replaceState({},'',location.pathname);
+  document.getElementById('roomScreen').classList.remove('active');
+  document.getElementById('homeScreen').classList.add('active');
+  document.getElementById('myItems').innerHTML='';
+  document.getElementById('participantList').innerHTML='';
+  drawCake();
+}
+
+/* ══ 코드 복사 ══ */
+function copyCode() {
+  const url=`${location.origin}${location.pathname}?room=${roomId}`;
+  navigator.clipboard.writeText(url)
+    .then(()=>toast('🔗 링크 복사됨! 친구한테 공유해'))
+    .catch(()=>{ navigator.clipboard.writeText(roomId); toast(`방 코드 복사됨: ${roomId}`); });
+}
+
+/* ══ 다운로드 ══ */
+function downloadCake() {
+  drawCake();
+  const a=document.createElement('a');
+  a.download='가능충케이크.png'; a.href=canvas.toDataURL('image/png'); a.click();
+}
+
+/* ══ 헬퍼 ══ */
+function efill(cx,cy,rx,ry,c){
+  ctx.beginPath(); ctx.ellipse(cx,cy,rx,ry,0,0,Math.PI*2); ctx.fillStyle=c; ctx.fill();
+}
+function estroke(cx,cy,rx,ry,c,lw){
+  ctx.beginPath(); ctx.ellipse(cx,cy,rx,ry,0,0,Math.PI*2); ctx.strokeStyle=c; ctx.lineWidth=lw; ctx.stroke();
+}
+function drawStrawberry(x,y,r){
+  ctx.save();
+  ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); ctx.fillStyle='#FF4444'; ctx.fill();
+  ctx.beginPath(); ctx.moveTo(x-2,y-r+1); ctx.lineTo(x,y-r-5); ctx.lineTo(x+2,y-r+1);
+  ctx.fillStyle='#66BB66'; ctx.fill(); ctx.restore();
+}
+function compressImage(img, size) {
+  const c=document.createElement('canvas'); c.width=c.height=size;
+  const ct=c.getContext('2d');
+  const s=Math.min(img.width,img.height);
+  ct.drawImage(img,(img.width-s)/2,(img.height-s)/2,s,s,0,0,size,size);
+  return c.toDataURL('image/jpeg',.65);
+}
+function getNick() {
+  const n=document.getElementById('nickInput').value.trim();
+  if(!n){ toast('닉네임을 입력해줘'); return ''; } return n;
+}
+function checkFB() {
+  if(!fbReady){ toast('Firebase 설정이 필요해! 파일 상단 주석을 확인해줘'); return false; } return true;
+}
+function toast(msg) {
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('show'),2800);
+}
+
+drawCake();
+</script>
+</body>
+</html>
