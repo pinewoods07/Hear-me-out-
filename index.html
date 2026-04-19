@@ -659,18 +659,62 @@ function roundRectFill(ctx, x, y, w, h, r, color) {
 
 /* ══ 초 위치 계산 ══ */
 function getCandlePos(n, cx, cy, rx, ry) {
-  if (n===1) return [[cx, cy]];
-  if (n<=8) {
-    const step = -Math.PI/2, ao = (2*Math.PI)/n, r = n<=3 ? .45 : .65;
-    return Array.from({length:n}, (_,i) =>
-      [cx + Math.cos(step+i*ao)*rx*r, cy + Math.sin(step+i*ao)*ry*r]);
+  // 각도를 골고루 퍼뜨리되, 약간 랜덤한 느낌으로 배치
+  const positions = [];
+  
+  if (n === 1) {
+    // 1개: 살짝 왼쪽 위에 꽂기 (정중앙 X)
+    return [[cx - rx * 0.3, cy - ry * 0.2]];
   }
-  const inner = Math.min(4, Math.floor(n*.35)), outer = n-inner;
-  const ao = (2*Math.PI)/outer, ai = (2*Math.PI)/Math.max(inner,1);
-  const pos = [];
-  for(let i=0;i<outer;i++) pos.push([cx+Math.cos(-Math.PI/2+i*ao)*rx*.78, cy+Math.sin(-Math.PI/2+i*ao)*ry*.78]);
-  for(let i=0;i<inner;i++) pos.push([cx+Math.cos(-Math.PI/2+i*ai+ao/2)*rx*.38, cy+Math.sin(-Math.PI/2+i*ai+ao/2)*ry*.38]);
-  return pos;
+  
+  if (n === 2) {
+    return [
+      [cx - rx * 0.45, cy - ry * 0.1],
+      [cx + rx * 0.45, cy + ry * 0.1],
+    ];
+  }
+
+  if (n === 3) {
+    return [
+      [cx - rx * 0.5, cy + ry * 0.2],
+      [cx,            cy - ry * 0.5],
+      [cx + rx * 0.5, cy + ry * 0.2],
+    ];
+  }
+
+  if (n <= 8) {
+    // 타원형으로 골고루 배치
+    const ao = (2 * Math.PI) / n;
+    const step = -Math.PI / 2;
+    for (let i = 0; i < n; i++) {
+      const angle = step + i * ao;
+      positions.push([
+        cx + Math.cos(angle) * rx * 0.62,
+        cy + Math.sin(angle) * ry * 0.62,
+      ]);
+    }
+    return positions;
+  }
+
+  // 9개 이상: 바깥 원 + 안쪽 원 2겹
+  const inner = Math.min(4, Math.floor(n * 0.35));
+  const outer = n - inner;
+  const ao = (2 * Math.PI) / outer;
+  const ai = (2 * Math.PI) / Math.max(inner, 1);
+
+  for (let i = 0; i < outer; i++) {
+    positions.push([
+      cx + Math.cos(-Math.PI/2 + i*ao) * rx * 0.78,
+      cy + Math.sin(-Math.PI/2 + i*ao) * ry * 0.78,
+    ]);
+  }
+  for (let i = 0; i < inner; i++) {
+    positions.push([
+      cx + Math.cos(-Math.PI/2 + i*ai + ao/2) * rx * 0.38,
+      cy + Math.sin(-Math.PI/2 + i*ai + ao/2) * ry * 0.38,
+    ]);
+  }
+  return positions;
 }
 
 /* ══ 캔버스 클릭 ══ */
