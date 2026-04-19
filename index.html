@@ -80,7 +80,7 @@ body::before {
   text-transform: uppercase; letter-spacing: .08em; margin-bottom: .9rem;
 }
 #roomScreen {
-  max-width: 720px; margin: 0 auto;
+  max-width: 900px; margin: 0 auto;
   padding: 1.5rem 1.25rem 4rem;
 }
 .room-header {
@@ -149,6 +149,7 @@ body::before {
 .cake-stage {
   background: linear-gradient(160deg,#FFF0FA 0%,#FFF8F0 100%);
   border-radius: 16px; text-align: center; padding: 1rem .5rem;
+  overflow-x: auto;
 }
 #cakeCanvas { display: block; margin: 0 auto; max-width: 100%; cursor: default; }
 .actions { display: flex; gap: 10px; flex-wrap: wrap; }
@@ -179,13 +180,16 @@ button.btn:active { transform: scale(.97); }
 .modal-bg.open { display: flex; }
 .modal-box {
   background: #fff; border-radius: 20px; padding: 1.5rem;
-  max-width: 340px; width: 90%; text-align: center;
+  max-width: 380px; width: 90%; text-align: center;
   animation: modalPop .25s cubic-bezier(.34,1.56,.64,1); position: relative;
 }
 @keyframes modalPop { from{transform:scale(.7);opacity:0} to{transform:scale(1);opacity:1} }
 .modal-box img {
-  width: 200px; height: 200px; border-radius: 50%; object-fit: cover;
-  border: 4px solid var(--pink); box-shadow: 0 8px 30px rgba(255,107,157,.3); margin-bottom: 1rem;
+  width: 260px; height: 260px; border-radius: 50%; object-fit: cover;
+  border: 4px solid var(--pink); box-shadow: 0 8px 30px rgba(255,107,157,.3);
+  margin-bottom: 1rem;
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
 }
 .modal-name  { font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
 .modal-owner { font-size: 12px; color: var(--muted); margin-bottom: 1rem; font-weight: 300; }
@@ -279,7 +283,7 @@ footer span { color: var(--pink); }
   <div class="card">
     <div class="card-title">케이크 미리보기 · 클릭하면 크게 보임</div>
     <div class="cake-stage">
-      <canvas id="cakeCanvas" width="580" height="500"></canvas>
+      <canvas id="cakeCanvas" width="860" height="620"></canvas>
     </div>
   </div>
 
@@ -316,7 +320,8 @@ let unsubs   = [];
 
 const canvas = document.getElementById('cakeCanvas');
 const ctx    = canvas.getContext('2d');
-const imgCache = {};
+const imgCache    = {}; // 캔버스용 (200px)
+const imgCacheHQ  = {}; // 모달용 고화질 (400px)
 
 /* ══ Firebase ══ */
 window.addEventListener('firebase-ready', () => {
@@ -403,6 +408,7 @@ function renderParticipants(data) {
   });
 }
 
+/* ══ 파일 추가 - 저화질(캔버스용) + 고화질(모달용) 둘 다 저장 ══ */
 function addFiles(files) {
   Array.from(files).forEach(file => {
     if (!file.type.startsWith('image/')) return;
@@ -410,11 +416,14 @@ function addFiles(files) {
     reader.onload = ev => {
       const img = new Image();
       img.onload = () => {
-        const compressed = compressImage(img, 200);
+        const compressed   = compressImage(img, 200);  // 캔버스용
+        const compressedHQ = compressImage(img, 400);  // 모달 고화질용
         fbPush(fbRef(fbDB, `rooms/${roomId}/items`), {
           uid: myUID, nick: myNick,
           name: file.name.replace(/\.[^.]+$/,'').slice(0,10),
-          imgData: compressed, ts: Date.now()
+          imgData:   compressed,
+          imgDataHQ: compressedHQ,
+          ts: Date.now()
         });
       };
       img.src = ev.target.result;
@@ -444,11 +453,12 @@ function renderMyItems() {
 
 function preloadImages() {
   allChars.forEach(c => {
-    if (!c.imgData || (imgCache[c.imgData]?.complete && imgCache[c.imgData]?.naturalWidth)) return;
-    const img = new Image();
-    img.onload = () => { imgCache[c.imgData] = img; drawCake(); };
-    img.src = c.imgData;
-    imgCache[c.imgData] = img;
+    if (c.imgData && !(imgCache[c.imgData]?.complete && imgCache[c.imgData]?.naturalWidth)) {
+      const img = new Image();
+      img.onload = () => { imgCache[c.imgData] = img; drawCake(); };
+      img.src = c.imgData;
+      imgCache[c.imgData] = img;
+    }
   });
 }
 function getCachedImg(src) {
@@ -459,17 +469,18 @@ function getCachedImg(src) {
 
 /* ══ 케이크 그리기 ══ */
 function drawCake() {
-  const W = 580, H = 500;
+  const W = 860, H = 620;
   ctx.clearRect(0, 0, W, H);
   hitAreas = [];
 
-  const cx = W/2, cbottom = H-40, ctop = cbottom-130;
-  const rx = 200, ryT = 44, ryB = 28;
+  const cx = W/2, cbottom = H - 50, ctop = cbottom - 160;
+  const rx = 300, ryT = 58, ryB = 36;
 
   /* 배경 장식 */
-  ctx.globalAlpha = .18;
-  [[60,30,'#FF6B9D'],[520,50,'#FFB347'],[80,440,'#FF9BBB'],[500,420,'#FF6B9D']].forEach(([x,y,c])=>{
-    ctx.beginPath(); ctx.arc(x,y,6,0,Math.PI*2); ctx.fillStyle=c; ctx.fill();
+  ctx.globalAlpha = .15;
+  [[80,40,'#FF6B9D'],[780,60,'#FFB347'],[90,560,'#FF9BBB'],[770,540,'#FF6B9D'],
+   [400,30,'#FFB347'],[160,300,'#FF9BBB'],[700,300,'#FF6B9D']].forEach(([x,y,c])=>{
+    ctx.beginPath(); ctx.arc(x,y,7,0,Math.PI*2); ctx.fillStyle=c; ctx.fill();
   });
   ctx.globalAlpha = 1;
 
@@ -486,46 +497,47 @@ function drawCake() {
   ctx.fillStyle = sg; ctx.fill();
 
   /* 크림 흘림 */
-  for (let i=0;i<9;i++) {
-    const a  = Math.PI/8*i;
+  for (let i=0;i<12;i++) {
+    const a  = Math.PI/11*i;
     const ex = cx + Math.cos(Math.PI-a)*rx*.98;
     const ey = ctop + Math.sin(Math.PI-a)*ryT*.5;
-    const dl = 12+(i%3)*8;
+    const dl = 14+(i%3)*9;
     ctx.beginPath(); ctx.moveTo(ex, ey-2);
     ctx.bezierCurveTo(ex-2, ey+dl*.5, ex+2, ey+dl*.8, ex, ey+dl);
-    ctx.strokeStyle='#FFF0F5'; ctx.lineWidth=7; ctx.lineCap='round'; ctx.stroke();
+    ctx.strokeStyle='#FFF0F5'; ctx.lineWidth=8; ctx.lineCap='round'; ctx.stroke();
   }
 
   /* 케이크 윗면 */
   efill(cx, ctop, rx, ryT, '#FF9BBB');
-  estroke(cx, ctop, rx, ryT, '#FFF0F5', 6);
+  estroke(cx, ctop, rx, ryT, '#FFF0F5', 7);
 
   /* 크림 방울 */
-  [0,.55,1.1,1.65,2.2,2.75,3.3,3.85,4.4,4.95,5.5,6.05].forEach(a=>{
+  [0,.45,.9,1.35,1.8,2.25,2.7,3.15,3.6,4.05,4.5,4.95,5.4,5.85].forEach(a=>{
     ctx.beginPath();
-    ctx.arc(cx+Math.cos(a)*rx*.82, ctop+Math.sin(a)*ryT*.82, 5, 0, Math.PI*2);
+    ctx.arc(cx+Math.cos(a)*rx*.84, ctop+Math.sin(a)*ryT*.84, 6, 0, Math.PI*2);
     ctx.fillStyle='#FFF0F5'; ctx.fill();
   });
 
   /* 딸기 */
-  [.28,1.38,2.48,3.58,4.68,5.78].forEach(a=>
-    drawStrawberry(cx+Math.cos(a)*rx*.55, ctop+Math.sin(a)*ryT*.55, 9));
+  [.3,1.2,2.1,3.0,3.9,4.8,5.7].forEach(a=>
+    drawStrawberry(cx+Math.cos(a)*rx*.58, ctop+Math.sin(a)*ryT*.58, 11));
 
   /* ══ 초 (사진) ══ */
   const chars = allChars.filter(c => c.imgData);
   if (chars.length === 0) {
-    ctx.font='14px "Gmarket Sans",sans-serif';
+    ctx.font='16px "Gmarket Sans",sans-serif';
     ctx.fillStyle='rgba(155,122,172,.5)'; ctx.textAlign='center';
-    ctx.fillText('이미지를 올리면 케이크에 꽂혀요 🕯️', cx, ctop-50);
+    ctx.fillText('이미지를 올리면 케이크에 꽂혀요 🕯️', cx, ctop-60);
   } else {
     const n  = chars.length;
-    const cr = Math.min(36, Math.max(14, 50 - n * 3));
-    const sw = Math.max(3, cr * 0.15);
-    let pos  = getCandlePos(n, cx, ctop, rx * 0.75, ryT * 1.2);
-    pos = resolveOverlap(pos, cr * 2.8 + 8, cx, ctop, rx * 0.88, ryT * 0.88);
+    /* 개수에 따라 사진 크기 자동 조절 */
+    const cr = Math.min(40, Math.max(12, 48 - n * 1.8));
+    const sw = Math.max(3, cr * 0.14);
+    let pos  = getCandlePos(n, cx, ctop, rx, ryT);
+    pos = resolveOverlap(pos, cr * 2.6 + 6, cx, ctop, rx * 0.9, ryT * 0.9);
 
     pos.forEach(([px,py], i) => {
-      const sl  = 55 + (i%4)*10;
+      const sl  = 50 + (i%5)*8;
       const icy = py - sl - cr;
 
       /* 초 막대 */
@@ -538,9 +550,9 @@ function drawCake() {
 
       /* 불꽃 */
       ctx.save(); ctx.globalAlpha=.9;
-      ctx.beginPath(); ctx.ellipse(px,py-sl-8,3,7,0,0,Math.PI*2);
+      ctx.beginPath(); ctx.ellipse(px,py-sl-9,3.5,8,0,0,Math.PI*2);
       ctx.fillStyle='#FFD700'; ctx.fill();
-      ctx.beginPath(); ctx.ellipse(px,py-sl-7,2,4,0,0,Math.PI*2);
+      ctx.beginPath(); ctx.ellipse(px,py-sl-8,2,5,0,0,Math.PI*2);
       ctx.fillStyle='#FF8C00'; ctx.fill();
       ctx.globalAlpha=1; ctx.restore();
 
@@ -548,7 +560,7 @@ function drawCake() {
       ctx.save();
       ctx.beginPath(); ctx.arc(px,icy,cr+3,0,Math.PI*2);
       ctx.fillStyle='#fff';
-      ctx.shadowColor='rgba(242,92,138,.3)'; ctx.shadowBlur=8; ctx.fill();
+      ctx.shadowColor='rgba(242,92,138,.3)'; ctx.shadowBlur=10; ctx.fill();
       ctx.restore();
       ctx.save();
       ctx.beginPath(); ctx.arc(px,icy,cr+3,0,Math.PI*2);
@@ -572,19 +584,21 @@ function drawCake() {
       /* 이름 레이블 */
       const nm = (chars[i].name||'').slice(0,7) + ((chars[i].name?.length||0)>7?'…':'');
       if (nm) {
-        ctx.font = `bold ${Math.max(9,Math.floor(cr*0.3))}px "Gmarket Sans",sans-serif`;
+        const fs = Math.max(9, Math.floor(cr*0.32));
+        ctx.font = `bold ${fs}px "Gmarket Sans",sans-serif`;
         const tw = ctx.measureText(nm).width;
         const lx = px-tw/2-6, ly = icy+cr+5;
-        roundRectFill(ctx, lx, ly, tw+12, 16, 8, 'rgba(255,107,157,.15)');
+        roundRectFill(ctx, lx, ly, tw+12, fs+7, 8, 'rgba(255,107,157,.15)');
         ctx.fillStyle='#D94A78'; ctx.textAlign='center';
-        ctx.fillText(nm, px, ly+12);
+        ctx.fillText(nm, px, ly+fs+1);
       }
 
       /* 올린 사람 닉네임 */
       if (chars[i].nick) {
-        ctx.font = `${Math.max(8,Math.floor(cr*0.25))}px "Gmarket Sans",sans-serif`;
+        const fs = Math.max(8, Math.floor(cr*0.28));
+        ctx.font = `${fs}px "Gmarket Sans",sans-serif`;
         ctx.fillStyle='rgba(155,122,172,.7)'; ctx.textAlign='center';
-        ctx.fillText(chars[i].nick, px, icy-cr-6);
+        ctx.fillText(chars[i].nick, px, icy-cr-7);
       }
 
       hitAreas.push({x:px, y:icy, r:cr+3, idx:i});
@@ -592,74 +606,41 @@ function drawCake() {
   }
 
   /* 서명 */
-  ctx.font='bold 12px "Gmarket Sans",sans-serif';
+  ctx.font='bold 13px "Gmarket Sans",sans-serif';
   ctx.fillStyle='rgba(155,122,172,.38)'; ctx.textAlign='center';
-  ctx.fillText(roomId?`가능충 케이크 · ${roomId}방`:'가능충 케이크 메이커', W/2, H-10);
+  ctx.fillText(roomId?`가능충 케이크 · ${roomId}방`:'가능충 케이크 메이커', W/2, H-12);
 }
 
-/* ══ 초 위치 계산 ══ */
+/* ══ 초 위치 계산 (나선형 그리드) ══ */
 function getCandlePos(n, cx, cy, rx, ry) {
-  if (n === 1) return [[cx - rx*0.3, cy]];
-  if (n === 2) return [
-    [cx - rx*0.5, cy],
-    [cx + rx*0.5, cy],
-  ];
-  if (n === 3) return [
-    [cx - rx*0.6, cy + ry*0.3],
-    [cx,          cy - ry*0.5],
-    [cx + rx*0.6, cy + ry*0.3],
-  ];
-  if (n === 4) return [
-    [cx - rx*0.55, cy - ry*0.4],
-    [cx + rx*0.55, cy - ry*0.4],
-    [cx - rx*0.55, cy + ry*0.4],
-    [cx + rx*0.55, cy + ry*0.4],
-  ];
-  if (n === 5) return [
-    [cx,           cy - ry*0.5],
-    [cx - rx*0.6,  cy - ry*0.1],
-    [cx + rx*0.6,  cy - ry*0.1],
-    [cx - rx*0.38, cy + ry*0.5],
-    [cx + rx*0.38, cy + ry*0.5],
-  ];
-  if (n === 6) return [
-    [cx - rx*0.55, cy - ry*0.5],
-    [cx,           cy - ry*0.5],
-    [cx + rx*0.55, cy - ry*0.5],
-    [cx - rx*0.55, cy + ry*0.4],
-    [cx,           cy + ry*0.4],
-    [cx + rx*0.55, cy + ry*0.4],
-  ];
-  if (n === 7) return [
-    [cx,           cy - ry*0.55],
-    [cx - rx*0.55, cy - ry*0.2],
-    [cx + rx*0.55, cy - ry*0.2],
-    [cx - rx*0.35, cy + ry*0.5],
-    [cx + rx*0.35, cy + ry*0.5],
-    [cx - rx*0.7,  cy + ry*0.3],
-    [cx + rx*0.7,  cy + ry*0.3],
-  ];
-  if (n === 8) return [
-    [cx - rx*0.55, cy - ry*0.55],
-    [cx,           cy - ry*0.6],
-    [cx + rx*0.55, cy - ry*0.55],
-    [cx - rx*0.7,  cy],
-    [cx + rx*0.7,  cy],
-    [cx - rx*0.55, cy + ry*0.5],
-    [cx,           cy + ry*0.55],
-    [cx + rx*0.55, cy + ry*0.5],
-  ];
-  /* 9개 이상: 바깥 링 + 안쪽 링 */
-  const outerN = Math.ceil(n * 0.65);
-  const innerN = n - outerN;
+  if (n === 1) return [[cx, cy]];
+
   const pos = [];
-  for (let i = 0; i < outerN; i++) {
-    const a = -Math.PI/2 + (2*Math.PI/outerN)*i;
-    pos.push([cx + Math.cos(a)*rx*0.72, cy + Math.sin(a)*ry*0.72]);
-  }
-  for (let i = 0; i < innerN; i++) {
-    const a = -Math.PI/2 + (2*Math.PI/Math.max(innerN,1))*i + Math.PI/innerN;
-    pos.push([cx + Math.cos(a)*rx*0.35, cy + Math.sin(a)*ry*0.35]);
+  /* 링 반지름 비율 목록 - 안→밖 순서 */
+  const rings = [
+    { r: 0,    max: 1  },
+    { r: 0.32, max: 6  },
+    { r: 0.55, max: 11 },
+    { r: 0.75, max: 17 },
+    { r: 0.90, max: 24 },
+  ];
+
+  let remaining = n;
+  for (const ring of rings) {
+    if (remaining <= 0) break;
+    const count = Math.min(remaining, ring.max);
+    if (ring.r === 0) {
+      pos.push([cx, cy]);
+    } else {
+      for (let i = 0; i < count; i++) {
+        const a = -Math.PI/2 + (2*Math.PI/count)*i;
+        pos.push([
+          cx + Math.cos(a) * rx * ring.r * 0.88,
+          cy + Math.sin(a) * ry * ring.r * 0.88,
+        ]);
+      }
+    }
+    remaining -= count;
   }
   return pos;
 }
@@ -667,16 +648,15 @@ function getCandlePos(n, cx, cy, rx, ry) {
 /* ══ 겹침 방지 ══ */
 function resolveOverlap(pos, minDist, cx, cy, rx, ry) {
   pos = pos.map(p => [...p]);
-  const MAX_ITER = 200;
-  for (let iter = 0; iter < MAX_ITER; iter++) {
+  for (let iter = 0; iter < 300; iter++) {
     let moved = false;
     for (let i = 0; i < pos.length; i++) {
       for (let j = i+1; j < pos.length; j++) {
         const dx   = pos[j][0] - pos[i][0];
         const dy   = pos[j][1] - pos[i][1];
-        const dist = Math.sqrt(dx*dx + dy*dy) || 0.01;
+        const dist = Math.sqrt(dx*dx + dy*dy) || 0.001;
         if (dist < minDist) {
-          const push = (minDist - dist) / 2 + 2;
+          const push = (minDist - dist) / 2 + 1;
           const nx = dx/dist, ny = dy/dist;
           pos[i][0] -= nx*push; pos[i][1] -= ny*push;
           pos[j][0] += nx*push; pos[j][1] += ny*push;
@@ -686,11 +666,11 @@ function resolveOverlap(pos, minDist, cx, cy, rx, ry) {
     }
     if (!moved) break;
   }
-  /* 타원 범위 밖으로 나가면 안으로 클램핑 */
+  /* 타원 범위 밖으로 나가면 클램핑 */
   return pos.map(([x,y]) => {
     const ddx = (x-cx)/rx, ddy = (y-cy)/ry;
     const d   = Math.sqrt(ddx*ddx + ddy*ddy);
-    if (d > 0.95) return [cx+(ddx/d)*rx*0.92, cy+(ddy/d)*ry*0.92];
+    if (d > 1) return [cx+(ddx/d)*rx*0.93, cy+(ddy/d)*ry*0.93];
     return [x, y];
   });
 }
@@ -728,9 +708,10 @@ canvas.addEventListener('mousemove', e => {
   canvas.style.cursor = hitAreas.some(a=>Math.hypot(mx-a.x,my-a.y)<=a.r)?'pointer':'default';
 });
 
-/* ══ 모달 ══ */
+/* ══ 모달 - 고화질 이미지 사용 ══ */
 function openModal(c) {
-  document.getElementById('modalImg').src   = c.imgData;
+  /* imgDataHQ 있으면 고화질, 없으면 일반 */
+  document.getElementById('modalImg').src   = c.imgDataHQ || c.imgData;
   document.getElementById('modalName').textContent  = c.name||'무명의 가능충';
   document.getElementById('modalOwner').textContent = `꽂은 사람: ${c.nick||'?'}`;
   document.getElementById('modalBg').classList.add('open');
@@ -781,7 +762,7 @@ function estroke(cx,cy,rx,ry,c,lw){
 function drawStrawberry(x,y,r){
   ctx.save();
   ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); ctx.fillStyle='#FF4444'; ctx.fill();
-  ctx.beginPath(); ctx.moveTo(x-2,y-r+1); ctx.lineTo(x,y-r-5); ctx.lineTo(x+2,y-r+1);
+  ctx.beginPath(); ctx.moveTo(x-2,y-r+1); ctx.lineTo(x,y-r-6); ctx.lineTo(x+2,y-r+1);
   ctx.fillStyle='#66BB66'; ctx.fill();
   ctx.restore();
 }
@@ -790,7 +771,8 @@ function compressImage(img, size) {
   const ct=c.getContext('2d');
   const s=Math.min(img.width,img.height);
   ct.drawImage(img,(img.width-s)/2,(img.height-s)/2,s,s,0,0,size,size);
-  return c.toDataURL('image/jpeg',.65);
+  /* 고화질은 품질 높게 */
+  return c.toDataURL('image/jpeg', size >= 400 ? 0.92 : 0.65);
 }
 function getNick() {
   const n=document.getElementById('nickInput').value.trim();
