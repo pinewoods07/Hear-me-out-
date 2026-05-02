@@ -90,181 +90,16 @@ button.btn:active { transform:scale(.97); }
 .toast.show { opacity:1; }
 .setup-notice { background:#fffbf0; border:1.5px solid #FFE082; border-radius:14px; padding:1rem 1.2rem; margin-bottom:1rem; font-size:13px; color:#7A5500; line-height:1.7; font-weight:300; }
 .setup-notice strong { font-weight:700; }
-footer { text-align:center; font-size:12px; color:var(--muted); margin-top:3rem; font-weight:300; }
-footer span { color:var(--pink); }
 
-/* ── 증빙 서류 패널 ── */
-.evidence-card {
-  background: #fff;
-  border-radius: 20px;
-  padding: 1.5rem;
-  margin-bottom: 1.25rem;
-  box-shadow: 0 2px 20px rgba(45,27,51,.06);
-  border: 1.5px solid rgba(155,122,172,.18);
-  position: relative;
-  overflow: hidden;
-}
-.evidence-card::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 3px;
-  background: linear-gradient(90deg, #9B7AAC, #FF6B9D, #FFB347, #9B7AAC);
-  background-size: 200% 100%;
-  animation: shimmer 3s linear infinite;
-}
-@keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
-.evidence-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 1rem;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-.evidence-title-wrap { display: flex; align-items: center; gap: 8px; }
-.evidence-stamp {
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: .12em;
-  color: #fff;
-  background: linear-gradient(135deg, #9B7AAC, #D94A78);
-  border-radius: 6px;
-  padding: 3px 9px;
-  text-transform: uppercase;
-}
-.evidence-label {
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--muted);
-  text-transform: uppercase;
-  letter-spacing: .08em;
-}
-.evidence-count {
-  font-size: 11px;
-  color: var(--muted);
-  background: rgba(155,122,172,.1);
-  border-radius: 999px;
-  padding: 2px 10px;
-  font-weight: 500;
-}
-.evidence-upload-zone {
-  border: 2px dashed rgba(155,122,172,.3);
-  border-radius: 14px;
-  padding: 1rem;
-  text-align: center;
-  cursor: pointer;
-  transition: all .2s;
-  background: rgba(155,122,172,.03);
-  margin-bottom: 1rem;
-}
-.evidence-upload-zone:hover { border-color: #9B7AAC; background: rgba(155,122,172,.07); }
-.evidence-upload-zone input { display: none; }
-.evidence-upload-zone .ico { font-size: 24px; line-height: 1; }
-.evidence-upload-zone p { font-size: 12px; color: var(--muted); margin-top: 5px; font-weight: 300; }
-.evidence-upload-zone strong { color: #9B7AAC; }
-.evidence-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
-  gap: 10px;
-}
-.evidence-item {
-  position: relative;
-  border-radius: 12px;
-  overflow: hidden;
-  aspect-ratio: 1;
-  background: rgba(155,122,172,.06);
-  border: 1px solid rgba(155,122,172,.15);
-  cursor: pointer;
-  animation: popIn .25s cubic-bezier(.34,1.56,.64,1);
-  transition: transform .15s, box-shadow .15s;
-}
-.evidence-item:hover { transform: scale(1.03); box-shadow: 0 6px 20px rgba(155,122,172,.25); }
 /* ✅ 증빙 서류 이미지 그리드 */
 .evidence-grid { display:flex; flex-wrap:wrap; gap:10px; margin-top:12px; }
 .evidence-item { position:relative; display:inline-block; }
 .evidence-item img {
-  width: 100%; height: 100%;
-  object-fit: cover;
-  display: block;
-}
-.evidence-item-del {
-  position: absolute;
-  top: 5px; right: 5px;
-  background: rgba(45,27,51,.65);
-  border: none;
-  border-radius: 50%;
-  width: 22px; height: 22px;
-  color: #fff;
-  font-size: 13px;
-  line-height: 22px;
-  text-align: center;
-  cursor: pointer;
-  opacity: 0;
-  transition: opacity .15s;
-  display: flex; align-items: center; justify-content: center;
-}
-.evidence-item:hover .evidence-item-del { opacity: 1; }
-.evidence-empty {
-  text-align: center;
-  padding: 1.5rem 1rem;
-  color: var(--muted);
-  font-size: 13px;
-  font-weight: 300;
-  border: 1.5px dashed rgba(155,122,172,.2);
-  border-radius: 12px;
-}
-.evidence-empty .ico { font-size: 28px; display: block; margin-bottom: 6px; }
-
-/* 증빙 이미지 모달 */
-.ev-modal-bg {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(45,27,51,.75);
-  z-index: 1100;
-  align-items: center;
-  justify-content: center;
-  backdrop-filter: blur(8px);
-}
-.ev-modal-bg.open { display: flex; }
-.ev-modal-box {
-  position: relative;
-  max-width: min(90vw, 700px);
-  max-height: 88vh;
-  border-radius: 20px;
-  overflow: hidden;
-  animation: modalPop .25s cubic-bezier(.34,1.56,.64,1);
-  box-shadow: 0 20px 60px rgba(45,27,51,.5);
-}
-.ev-modal-box img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  max-height: 88vh;
-  background: #1a0d22;
-}
-.ev-modal-close {
-  position: absolute;
-  top: 12px; right: 12px;
-  background: rgba(45,27,51,.7);
-  border: none;
-  border-radius: 50%;
-  width: 34px; height: 34px;
-  font-size: 18px;
-  cursor: pointer;
-  color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  backdrop-filter: blur(4px);
-}
-.ev-modal-close:hover { background: rgba(242,92,138,.7); }
   width:110px; height:110px; object-fit:cover;
   border-radius:12px; border:2px solid rgba(242,92,138,.2);
   cursor:pointer; display:block; transition:all .2s;
 }
+.evidence-item img { width:110px; height:110px; object-fit:cover; border-radius:12px; border:2px solid rgba(242,92,138,.2); cursor:pointer; display:block; transition:all .2s; }
 .evidence-item img:hover { border-color:var(--pink); transform:scale(1.04); }
 .evidence-item .ev-del {
   position:absolute; top:-7px; right:-7px;
@@ -280,6 +115,8 @@ footer span { color:var(--pink); }
 }
 
 /* 증빙 모달 (사진이 원형 아닌 직사각형) */
+.evidence-item .ev-del { position:absolute; top:-7px; right:-7px; width:22px; height:22px; border-radius:50%; border:none; background:var(--pink); color:#fff; font-size:14px; cursor:pointer; line-height:22px; text-align:center; padding:0; box-shadow:0 2px 6px rgba(255,107,157,.4); }
+.evidence-item .ev-label { font-size:10px; color:var(--muted); text-align:center; margin-top:4px; max-width:110px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 #evidenceModalBg { display:none; position:fixed; inset:0; background:rgba(45,27,51,.65); z-index:1100; align-items:center; justify-content:center; backdrop-filter:blur(6px); }
 #evidenceModalBg.open { display:flex; }
 #evidenceModalBox {
@@ -298,14 +135,15 @@ footer span { color:var(--pink); }
   width:30px; height:30px; font-size:16px; cursor:pointer;
   color:var(--muted); display:flex; align-items:center; justify-content:center;
 }
+#evidenceModalBox { background:#fff; border-radius:20px; padding:1.5rem; max-width:520px; width:92%; text-align:center; animation:modalPop .25s cubic-bezier(.34,1.56,.64,1); position:relative; }
+#evidenceModalBox img { max-width:100%; max-height:70vh; border-radius:12px; object-fit:contain; border:2px solid rgba(242,92,138,.2); margin-bottom:1rem; width:auto; height:auto; }
+#evidenceModalClose { position:absolute; top:12px; right:14px; background:rgba(45,27,51,.07); border:none; border-radius:50%; width:30px; height:30px; font-size:16px; cursor:pointer; color:var(--muted); display:flex; align-items:center; justify-content:center; }
 #evidenceModalClose:hover { background:rgba(242,92,138,.15); }
 
 footer { text-align:center; font-size:12px; color:var(--muted); margin-top:3rem; font-weight:300; }
 footer span { color:var(--pink); }
 </style>
-</head>
-<body>
-@@ -286,10 +164,12 @@
+@@ -164,12 +132,10 @@
       <button class="btn btn-leave" onclick="leaveRoom()">나가기</button>
     </div>
   </div>
@@ -318,44 +156,16 @@ footer span { color:var(--pink); }
   <div class="card">
     <div class="card-title">내 가능충 추가</div>
     <div class="upload-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
-@@ -299,36 +179,23 @@
+@@ -179,8 +145,6 @@
     </div>
     <div class="my-items" id="myItems"></div>
   </div>
-  <div class="card">
-    <div class="card-title">케이크 미리보기 · 클릭하면 크게 보임</div>
-    <div class="cake-stage"><canvas id="cakeCanvas" width="1200" height="900"></canvas></div>
-  </div>
 
-  <!-- ── 증빙 서류 패널 ── -->
-  <div class="evidence-card">
-    <div class="evidence-header">
-      <div class="evidence-title-wrap">
-        <span class="evidence-stamp">📎 Evidence</span>
-        <span class="evidence-label">증빙 서류</span>
-      </div>
-      <span class="evidence-count" id="evCount">0장</span>
-    </div>
-    <p style="font-size:12px;color:var(--muted);font-weight:300;margin-bottom:12px;line-height:1.6;">
-      이 가능충이 왜 가능한지 설명할 때 쓸 증거 이미지를 여기에 올려요.<br>케이크랑은 별개로 보관됩니다.
-    </p>
-    <div class="evidence-upload-zone" onclick="document.getElementById('evFileInput').click()">
-      <input type="file" id="evFileInput" accept="image/*" multiple>
-      <div class="ico">🗂️</div>
   <!-- ✅ 증빙 서류 카드 (케이크랑 완전 별개, Firebase 저장 안 함) -->
   <div class="card">
     <div class="card-title">📎 증빙 서류 · 왜 좋은지 설명용</div>
     <div class="upload-zone" id="evidenceZone" onclick="document.getElementById('evidenceInput').click()">
-      <input type="file" id="evidenceInput" accept="image/*" multiple>
-      <div class="ico">📄</div>
-      <p><strong>클릭</strong>하거나 드래그해서 증빙 이미지 추가</p>
-      <p style="font-size:11px;margin-top:4px;color:rgba(155,122,172,.5);">케이크에 올라가지 않음 · 내 화면에만 보임</p>
-    </div>
-    <div class="evidence-grid" id="evidenceGrid">
-      <div class="evidence-empty" id="evidenceEmpty">
-        <span class="ico">🔍</span>
-        증빙 자료가 없어요.<br>이미지를 올려서 가능함을 증명해봐요!
-      </div>
+@@ -191,20 +155,17 @@
     </div>
     <div class="evidence-grid" id="evidenceGrid"></div>
   </div>
@@ -364,11 +174,11 @@ footer span { color:var(--pink); }
     <div class="card-title">케이크 미리보기 · 클릭하면 크게 보임</div>
     <div class="cake-stage"><canvas id="cakeCanvas" width="1200" height="900"></canvas></div>
   </div>
-  <!-- ── /증빙 서류 패널 ── -->
 
   <div class="card">
     <div class="card-title">저장</div>
-@@ -337,6 +204,7 @@
+    <div class="actions"><button class="btn btn-main" onclick="downloadCake()">🎂 이미지로 저장</button></div>
+  </div>
   <footer>made with <span>♥</span> for ganeungchung connoisseurs</footer>
 </div>
 
@@ -376,49 +186,24 @@ footer span { color:var(--pink); }
 <div class="modal-bg" id="modalBg" onclick="closeModal(event)">
   <div class="modal-box">
     <button class="modal-close" onclick="closeModal()">×</button>
-@@ -347,11 +215,12 @@
+@@ -215,7 +176,6 @@
   </div>
 </div>
 
-<!-- 증빙 이미지 확대 모달 -->
-<div class="ev-modal-bg" id="evModalBg" onclick="closeEvModal(event)">
-  <div class="ev-modal-box">
-    <button class="ev-modal-close" onclick="closeEvModal()">×</button>
-    <img id="evModalImg" src="" alt="">
 <!-- ✅ 증빙 서류 모달 (직사각형) -->
 <div id="evidenceModalBg" onclick="closeEvidenceModal(event)">
   <div id="evidenceModalBox">
     <button id="evidenceModalClose" onclick="closeEvidenceModal()">×</button>
-    <img id="evidenceModalImg" src="" alt="">
-    <div id="evidenceModalName" style="font-size:14px;color:var(--muted);font-weight:300;"></div>
-  </div>
-</div>
-
-@@ -375,15 +244,71 @@
-  if(code) document.getElementById('joinCodeInput').value=code.toUpperCase();
-  document.getElementById('nickInput').value=localStorage.getItem('gnick')||'';
+@@ -246,7 +206,7 @@
   drawCake();
-  initEvidence();
 });
 
 /* ══ 케이크 이미지 드래그드롭 ══ */
+/* ══ 케이크 드래그드롭 ══ */
 const dz=document.getElementById('dropZone');
 dz.addEventListener('dragover',e=>{e.preventDefault();dz.style.borderColor='#FF6B9D';});
 dz.addEventListener('dragleave',()=>{dz.style.borderColor='';});
-dz.addEventListener('drop',e=>{e.preventDefault();dz.style.borderColor='';addFiles(e.dataTransfer.files);});
-document.getElementById('fileInput').addEventListener('change',e=>addFiles(e.target.files));
-
-/* ══ 증빙 서류 드래그드롭 ══ */
-const ez=document.getElementById('evidenceZone');
-ez.addEventListener('dragover',e=>{e.preventDefault();ez.style.borderColor='#FF6B9D';});
-ez.addEventListener('dragleave',()=>{ez.style.borderColor='';});
-ez.addEventListener('drop',e=>{e.preventDefault();ez.style.borderColor='';addEvidence(e.dataTransfer.files);});
-document.getElementById('evidenceInput').addEventListener('change',e=>addEvidence(e.target.files));
-
-/* ══ 증빙 서류 추가 ══ */
-function addEvidence(files){
-  const grid=document.getElementById('evidenceGrid');
-  Array.from(files).forEach(file=>{
+@@ -267,33 +227,22 @@
     if(!file.type.startsWith('image/'))return;
     const reader=new FileReader();
     reader.onload=ev=>{
@@ -427,12 +212,16 @@ function addEvidence(files){
 
       const img=document.createElement('img');
       img.src=ev.target.result;
+      const item=document.createElement('div'); item.className='evidence-item';
+      const img=document.createElement('img'); img.src=ev.target.result;
       const fname=file.name.replace(/\.[^.]+$/,'');
       img.onclick=()=>openEvidenceModal(ev.target.result, fname);
 
       const del=document.createElement('button');
       del.className='ev-del';
       del.textContent='×';
+      img.onclick=()=>openEvidenceModal(ev.target.result,fname);
+      const del=document.createElement('button'); del.className='ev-del'; del.textContent='×';
       del.onclick=()=>item.remove();
 
       const label=document.createElement('div');
@@ -441,6 +230,8 @@ function addEvidence(files){
 
       item.append(img,del,label);
       grid.appendChild(item);
+      const label=document.createElement('div'); label.className='ev-label'; label.textContent=fname;
+      item.append(img,del,label); grid.appendChild(item);
     };
     reader.readAsDataURL(file);
   });
@@ -449,11 +240,11 @@ function addEvidence(files){
 
 /* ══ 증빙 서류 모달 ══ */
 function openEvidenceModal(src, name){
+function openEvidenceModal(src,name){
   document.getElementById('evidenceModalImg').src=src;
   document.getElementById('evidenceModalName').textContent=name;
   document.getElementById('evidenceModalBg').classList.add('open');
-}
-function closeEvidenceModal(e){
+@@ -302,12 +251,8 @@
   if(!e||e.target===document.getElementById('evidenceModalBg'))
     document.getElementById('evidenceModalBg').classList.remove('open');
 }
@@ -464,178 +255,17 @@ document.addEventListener('keydown',e=>{
   }
 });
 
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ closeModal(); closeEvidenceModal(); } });
+
 async function createRoom(){
   if(!checkFB())return; myNick=getNick(); if(!myNick)return;
-  roomId=Math.random().toString(36).slice(2,8).toUpperCase(); await enterRoom();
-@@ -469,9 +394,9 @@
-  return(img&&img.complete&&img.naturalWidth)?img:null;
-}
-
-/* ══════════════════════════════
-/* ════════════════════════
-   케이크 그리기
-══════════════════════════════ */
-════════════════════════ */
-function drawCake(){
-  const W=1200,H=900;
-  ctx.clearRect(0,0,W,H);
-@@ -519,30 +444,26 @@
-    return;
-  }
-
-  const CR=48;
-  const STICK=70;
-  const FLOOR_H=CR*2+35;
-  const CAP = Math.max(2, Math.floor((rx * 2 * 0.90) / (CR * 2 + 10)));
-
-  const floor1=chars.slice(0,CAP);
-  const floor2=chars.slice(CAP,CAP*2);
-  const floor3=chars.slice(CAP*2,CAP*3);
-  const floors=[floor1,floor2,floor3].filter(f=>f.length>0);
-  const CR=48, STICK=70, FLOOR_H=CR*2+35;
-  const CAP=Math.max(2,Math.floor((rx*2*0.90)/(CR*2+10)));
-  const floors=[chars.slice(0,CAP),chars.slice(CAP,CAP*2),chars.slice(CAP*2,CAP*3)].filter(f=>f.length>0);
-
-  const floorData=floors.map((floorChars,fi)=>{
-    const n=floorChars.length;
-    const sl=STICK+fi*FLOOR_H;
+@@ -454,7 +399,8 @@
     const positions=[];
     for(let i=0;i<n;i++){
-      const t = n===1 ? 0.5 : i/(n-1);
-      const px = (cx - rx*0.88) + t*(rx*0.88*2);
       const t=n===1?0.5:i/(n-1);
       const px=(cx-rx*0.88)+t*(rx*0.88*2);
+      /* ✅ 0.88 → 0.60 으로 줄여서 가운데로 모음 */
+      const px=(cx-rx*0.60)+t*(rx*0.60*2);
       const dxRatio=(px-cx)/rx;
-      const py=ctop - ryT*Math.sqrt(Math.max(0,1-dxRatio*dxRatio));
       const ellipseY=ryT*Math.sqrt(Math.max(0,1-dxRatio*dxRatio));
       const py=ctop+ellipseY*0.4;
-      positions.push({px,py,sl});
-    }
-    return{floorChars,fi,positions,sl};
-  });
-
-  /* 막대+불꽃 먼저 */
-  floorData.forEach(({positions,sl})=>{
-    positions.forEach(({px,py})=>{
-      const sw=7;
-@@ -552,14 +473,14 @@
-      ctx.strokeStyle=gg;ctx.lineWidth=sw;ctx.lineCap='round';
-      ctx.beginPath();ctx.moveTo(px,py);ctx.lineTo(px,py-sl);ctx.stroke();
-      ctx.restore();
-
-      ctx.save();ctx.globalAlpha=.92;
-      ctx.beginPath();ctx.ellipse(px,py-sl-11,4,10,0,0,Math.PI*2);ctx.fillStyle='#FFD700';ctx.fill();
-      ctx.beginPath();ctx.ellipse(px,py-sl-10,2.5,6,0,0,Math.PI*2);ctx.fillStyle='#FF8C00';ctx.fill();
-      ctx.globalAlpha=1;ctx.restore();
-    });
-  });
-
-  /* 사진 나중에 → 막대가 사진 뒤로 */
-  floorData.forEach(({floorChars,fi,positions,sl})=>{
-    positions.forEach(({px,py},i)=>{
-      const icy=py-sl-CR;
-@@ -592,13 +513,11 @@
-        ctx.fillStyle='#D94A78';ctx.textAlign='center';
-        ctx.fillText(nm,px,ly+15);
-      }
-
-      if(floorChars[i].nick){
-        ctx.font='11px "Gmarket Sans",sans-serif';
-        ctx.fillStyle='rgba(155,122,172,.85)';ctx.textAlign='center';
-        ctx.fillText(floorChars[i].nick,px,icy-CR-9);
-      }
-
-      hitAreas.push({x:px,y:icy,r:CR+4,idx:globalIdx});
-    });
-  });
-@@ -641,7 +560,6 @@
-function closeModal(e){
-  if(!e||e.target===document.getElementById('modalBg'))document.getElementById('modalBg').classList.remove('open');
-}
-document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeModal();closeEvModal();}});
-
-async function leaveRoom(){
-  if(roomId){try{await fbRemove(fbRef(fbDB,`rooms/${roomId}/participants/${myUID}`));}catch(_){}}
-@@ -683,82 +601,6 @@
-  const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
-  clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2800);
-}
-
-/* ══════════════════════════════
-   증빙 서류 패널 (로컬 전용, Firebase 무관)
-══════════════════════════════ */
-let evidenceItems = []; // { id, src, filename }
-
-function initEvidence() {
-  const evDz = document.getElementById('evidenceGrid');
-  const evInput = document.getElementById('evFileInput');
-
-  // 드래그앤드롭
-  const evCard = document.querySelector('.evidence-card');
-  evCard.addEventListener('dragover', e => { e.preventDefault(); evCard.style.outline = '2px dashed #9B7AAC'; });
-  evCard.addEventListener('dragleave', () => { evCard.style.outline = ''; });
-  evCard.addEventListener('drop', e => { e.preventDefault(); evCard.style.outline = ''; addEvidenceFiles(e.dataTransfer.files); });
-
-  evInput.addEventListener('change', e => { addEvidenceFiles(e.target.files); e.target.value = ''; });
-}
-
-function addEvidenceFiles(files) {
-  Array.from(files).forEach(file => {
-    if (!file.type.startsWith('image/')) return;
-    const reader = new FileReader();
-    reader.onload = ev => {
-      evidenceItems.push({ id: 'ev_' + Date.now() + '_' + Math.random().toString(36).slice(2,6), src: ev.target.result, filename: file.name });
-      renderEvidence();
-    };
-    reader.readAsDataURL(file);
-  });
-}
-
-function removeEvidence(id) {
-  evidenceItems = evidenceItems.filter(e => e.id !== id);
-  renderEvidence();
-}
-
-function renderEvidence() {
-  const grid = document.getElementById('evidenceGrid');
-  const empty = document.getElementById('evidenceEmpty');
-  const count = document.getElementById('evCount');
-
-  count.textContent = evidenceItems.length + '장';
-
-  if (evidenceItems.length === 0) {
-    grid.innerHTML = '';
-    const emptyDiv = document.createElement('div');
-    emptyDiv.className = 'evidence-empty';
-    emptyDiv.id = 'evidenceEmpty';
-    emptyDiv.innerHTML = '<span class="ico">🔍</span>증빙 자료가 없어요.<br>이미지를 올려서 가능함을 증명해봐요!';
-    grid.appendChild(emptyDiv);
-    return;
-  }
-
-  grid.innerHTML = '';
-  evidenceItems.forEach(item => {
-    const div = document.createElement('div');
-    div.className = 'evidence-item';
-    div.innerHTML = `
-      <img src="${item.src}" alt="${item.filename}" loading="lazy">
-      <button class="evidence-item-del" onclick="event.stopPropagation();removeEvidence('${item.id}')" title="삭제">×</button>
-    `;
-    div.addEventListener('click', () => openEvModal(item.src));
-    grid.appendChild(div);
-  });
-}
-
-function openEvModal(src) {
-  document.getElementById('evModalImg').src = src;
-  document.getElementById('evModalBg').classList.add('open');
-}
-function closeEvModal(e) {
-  if (!e || e.target === document.getElementById('evModalBg')) {
-    document.getElementById('evModalBg').classList.remove('open');
-  }
-}
-
-drawCake();
-</script>
-</body>
