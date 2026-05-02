@@ -90,50 +90,18 @@ button.btn:active { transform:scale(.97); }
 .toast.show { opacity:1; }
 .setup-notice { background:#fffbf0; border:1.5px solid #FFE082; border-radius:14px; padding:1rem 1.2rem; margin-bottom:1rem; font-size:13px; color:#7A5500; line-height:1.7; font-weight:300; }
 .setup-notice strong { font-weight:700; }
-
-/* ✅ 증빙 서류 이미지 그리드 */
 .evidence-grid { display:flex; flex-wrap:wrap; gap:10px; margin-top:12px; }
 .evidence-item { position:relative; display:inline-block; }
-.evidence-item img {
-  width:110px; height:110px; object-fit:cover;
-  border-radius:12px; border:2px solid rgba(242,92,138,.2);
-  cursor:pointer; display:block; transition:all .2s;
-}
+.evidence-item img { width:110px; height:110px; object-fit:cover; border-radius:12px; border:2px solid rgba(242,92,138,.2); cursor:pointer; display:block; transition:all .2s; }
 .evidence-item img:hover { border-color:var(--pink); transform:scale(1.04); }
-.evidence-item .ev-del {
-  position:absolute; top:-7px; right:-7px;
-  width:22px; height:22px; border-radius:50%; border:none;
-  background:var(--pink); color:#fff; font-size:14px;
-  cursor:pointer; line-height:22px; text-align:center; padding:0;
-  box-shadow:0 2px 6px rgba(255,107,157,.4);
-}
-.evidence-item .ev-label {
-  font-size:10px; color:var(--muted); text-align:center;
-  margin-top:4px; max-width:110px;
-  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
-}
-
-/* 증빙 모달 (사진이 원형 아닌 직사각형) */
+.evidence-item .ev-del { position:absolute; top:-7px; right:-7px; width:22px; height:22px; border-radius:50%; border:none; background:var(--pink); color:#fff; font-size:14px; cursor:pointer; line-height:22px; text-align:center; padding:0; box-shadow:0 2px 6px rgba(255,107,157,.4); }
+.evidence-item .ev-label { font-size:10px; color:var(--muted); text-align:center; margin-top:4px; max-width:110px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 #evidenceModalBg { display:none; position:fixed; inset:0; background:rgba(45,27,51,.65); z-index:1100; align-items:center; justify-content:center; backdrop-filter:blur(6px); }
 #evidenceModalBg.open { display:flex; }
-#evidenceModalBox {
-  background:#fff; border-radius:20px; padding:1.5rem;
-  max-width:520px; width:92%; text-align:center;
-  animation:modalPop .25s cubic-bezier(.34,1.56,.64,1); position:relative;
-}
-#evidenceModalBox img {
-  max-width:100%; max-height:70vh; border-radius:12px;
-  object-fit:contain; border:2px solid rgba(242,92,138,.2); margin-bottom:1rem;
-  width:auto; height:auto;
-}
-#evidenceModalClose {
-  position:absolute; top:12px; right:14px;
-  background:rgba(45,27,51,.07); border:none; border-radius:50%;
-  width:30px; height:30px; font-size:16px; cursor:pointer;
-  color:var(--muted); display:flex; align-items:center; justify-content:center;
-}
+#evidenceModalBox { background:#fff; border-radius:20px; padding:1.5rem; max-width:520px; width:92%; text-align:center; animation:modalPop .25s cubic-bezier(.34,1.56,.64,1); position:relative; }
+#evidenceModalBox img { max-width:100%; max-height:70vh; border-radius:12px; object-fit:contain; border:2px solid rgba(242,92,138,.2); margin-bottom:1rem; width:auto; height:auto; }
+#evidenceModalClose { position:absolute; top:12px; right:14px; background:rgba(45,27,51,.07); border:none; border-radius:50%; width:30px; height:30px; font-size:16px; cursor:pointer; color:var(--muted); display:flex; align-items:center; justify-content:center; }
 #evidenceModalClose:hover { background:rgba(242,92,138,.15); }
-
 footer { text-align:center; font-size:12px; color:var(--muted); margin-top:3rem; font-weight:300; }
 footer span { color:var(--pink); }
 </style>
@@ -164,12 +132,10 @@ footer span { color:var(--pink); }
       <button class="btn btn-leave" onclick="leaveRoom()">나가기</button>
     </div>
   </div>
-
   <div class="card">
     <div class="card-title">참여자</div>
     <div class="participants" id="participantList"><span style="font-size:13px;color:var(--muted);font-weight:300;">연결 중...</span></div>
   </div>
-
   <div class="card">
     <div class="card-title">내 가능충 추가</div>
     <div class="upload-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
@@ -179,8 +145,6 @@ footer span { color:var(--pink); }
     </div>
     <div class="my-items" id="myItems"></div>
   </div>
-
-  <!-- ✅ 증빙 서류 카드 (케이크랑 완전 별개, Firebase 저장 안 함) -->
   <div class="card">
     <div class="card-title">📎 증빙 서류 · 왜 좋은지 설명용</div>
     <div class="upload-zone" id="evidenceZone" onclick="document.getElementById('evidenceInput').click()">
@@ -191,12 +155,10 @@ footer span { color:var(--pink); }
     </div>
     <div class="evidence-grid" id="evidenceGrid"></div>
   </div>
-
   <div class="card">
     <div class="card-title">케이크 미리보기 · 클릭하면 크게 보임</div>
     <div class="cake-stage"><canvas id="cakeCanvas" width="1200" height="900"></canvas></div>
   </div>
-
   <div class="card">
     <div class="card-title">저장</div>
     <div class="actions"><button class="btn btn-main" onclick="downloadCake()">🎂 이미지로 저장</button></div>
@@ -204,7 +166,6 @@ footer span { color:var(--pink); }
   <footer>made with <span>♥</span> for ganeungchung connoisseurs</footer>
 </div>
 
-<!-- 케이크 사진 모달 -->
 <div class="modal-bg" id="modalBg" onclick="closeModal(event)">
   <div class="modal-box">
     <button class="modal-close" onclick="closeModal()">×</button>
@@ -215,7 +176,6 @@ footer span { color:var(--pink); }
   </div>
 </div>
 
-<!-- ✅ 증빙 서류 모달 (직사각형) -->
 <div id="evidenceModalBg" onclick="closeEvidenceModal(event)">
   <div id="evidenceModalBox">
     <button id="evidenceModalClose" onclick="closeEvidenceModal()">×</button>
@@ -246,7 +206,7 @@ window.addEventListener('DOMContentLoaded',()=>{
   drawCake();
 });
 
-/* ══ 케이크 이미지 드래그드롭 ══ */
+/* ══ 케이크 드래그드롭 ══ */
 const dz=document.getElementById('dropZone');
 dz.addEventListener('dragover',e=>{e.preventDefault();dz.style.borderColor='#FF6B9D';});
 dz.addEventListener('dragleave',()=>{dz.style.borderColor='';});
@@ -267,25 +227,14 @@ function addEvidence(files){
     if(!file.type.startsWith('image/'))return;
     const reader=new FileReader();
     reader.onload=ev=>{
-      const item=document.createElement('div');
-      item.className='evidence-item';
-
-      const img=document.createElement('img');
-      img.src=ev.target.result;
+      const item=document.createElement('div'); item.className='evidence-item';
+      const img=document.createElement('img'); img.src=ev.target.result;
       const fname=file.name.replace(/\.[^.]+$/,'');
-      img.onclick=()=>openEvidenceModal(ev.target.result, fname);
-
-      const del=document.createElement('button');
-      del.className='ev-del';
-      del.textContent='×';
+      img.onclick=()=>openEvidenceModal(ev.target.result,fname);
+      const del=document.createElement('button'); del.className='ev-del'; del.textContent='×';
       del.onclick=()=>item.remove();
-
-      const label=document.createElement('div');
-      label.className='ev-label';
-      label.textContent=fname;
-
-      item.append(img,del,label);
-      grid.appendChild(item);
+      const label=document.createElement('div'); label.className='ev-label'; label.textContent=fname;
+      item.append(img,del,label); grid.appendChild(item);
     };
     reader.readAsDataURL(file);
   });
@@ -293,7 +242,7 @@ function addEvidence(files){
 }
 
 /* ══ 증빙 서류 모달 ══ */
-function openEvidenceModal(src, name){
+function openEvidenceModal(src,name){
   document.getElementById('evidenceModalImg').src=src;
   document.getElementById('evidenceModalName').textContent=name;
   document.getElementById('evidenceModalBg').classList.add('open');
@@ -302,12 +251,8 @@ function closeEvidenceModal(e){
   if(!e||e.target===document.getElementById('evidenceModalBg'))
     document.getElementById('evidenceModalBg').classList.remove('open');
 }
-document.addEventListener('keydown',e=>{
-  if(e.key==='Escape'){
-    closeModal();
-    closeEvidenceModal();
-  }
-});
+
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ closeModal(); closeEvidenceModal(); } });
 
 async function createRoom(){
   if(!checkFB())return; myNick=getNick(); if(!myNick)return;
@@ -454,7 +399,8 @@ function drawCake(){
     const positions=[];
     for(let i=0;i<n;i++){
       const t=n===1?0.5:i/(n-1);
-      const px=(cx-rx*0.88)+t*(rx*0.88*2);
+      /* ✅ 0.88 → 0.60 으로 줄여서 가운데로 모음 */
+      const px=(cx-rx*0.60)+t*(rx*0.60*2);
       const dxRatio=(px-cx)/rx;
       const ellipseY=ryT*Math.sqrt(Math.max(0,1-dxRatio*dxRatio));
       const py=ctop+ellipseY*0.4;
