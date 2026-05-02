@@ -98,6 +98,26 @@ button.btn:active { transform:scale(.97); }
 .setup-notice strong { font-weight:700; }
 footer { text-align:center; font-size:12px; color:var(--muted); margin-top:3rem; font-weight:300; }
 footer span { color:var(--pink); }
+
+/* 증빙 서류 */
+.evidence-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(120px,1fr)); gap:10px; margin-top:14px; }
+.evidence-card { position:relative; border-radius:12px; overflow:hidden; background:#fff;
+  box-shadow:0 2px 10px rgba(45,27,51,.07); border:1px solid rgba(242,92,138,.1); aspect-ratio:1; cursor:pointer; }
+.evidence-card img { width:100%; height:100%; object-fit:cover; display:block; transition:transform .2s; }
+.evidence-card:hover img { transform:scale(1.04); }
+.evidence-card .ev-owner { position:absolute; bottom:0; left:0; right:0; background:linear-gradient(transparent,rgba(45,27,51,.7));
+  color:#fff; font-size:11px; font-weight:700; padding:16px 6px 5px; text-align:center; }
+.evidence-card .ev-del { position:absolute; top:5px; right:5px; background:rgba(217,74,120,.85); color:#fff;
+  border:none; border-radius:50%; width:20px; height:20px; font-size:12px; cursor:pointer; display:none;
+  align-items:center; justify-content:center; line-height:1; }
+.evidence-card:hover .ev-del { display:flex; }
+.upload-zone2 { border:2px dashed rgba(155,122,172,.3); border-radius:14px; padding:1rem; text-align:center;
+  cursor:pointer; transition:all .2s; background:rgba(155,122,172,.03); }
+.upload-zone2:hover { border-color:var(--muted); background:rgba(155,122,172,.07); }
+.upload-zone2 input { display:none; }
+.upload-zone2 .ico2 { font-size:24px; line-height:1; }
+.upload-zone2 p { font-size:13px; color:var(--muted); margin-top:5px; font-weight:300; }
+.upload-zone2 strong { color:var(--muted); }
 </style>
 </head>
 <body>
@@ -140,6 +160,15 @@ footer span { color:var(--pink); }
       <p><strong>클릭</strong>하거나 드래그해서 이미지 추가</p>
     </div>
     <div class="my-items" id="myItems"></div>
+  </div>
+  <div class="card">
+    <div class="card-title">📂 증빙 서류 · 왜 좋은지 설명용</div>
+    <div class="upload-zone2" id="evidenceDZ" onclick="document.getElementById('evidenceInput').click()">
+      <input type="file" id="evidenceInput" accept="image/*" multiple>
+      <div class="ico2">📎</div>
+      <p><strong>클릭</strong>하거나 드래그해서 증빙 이미지 추가</p>
+    </div>
+    <div class="evidence-grid" id="evidenceGrid"></div>
   </div>
   <div class="card">
     <div class="card-title">케이크 미리보기 · 클릭하면 크게 보임</div>
@@ -193,6 +222,59 @@ dz.addEventListener('dragleave',()=>{dz.style.borderColor='';});
 dz.addEventListener('drop',e=>{e.preventDefault();dz.style.borderColor='';addFiles(e.dataTransfer.files);});
 document.getElementById('fileInput').addEventListener('change',e=>addFiles(e.target.files));
 
+/* ════ 증빙 서류 ════ */
+const edz=document.getElementById('evidenceDZ');
+edz.addEventListener('dragover',e=>{e.preventDefault();edz.style.borderColor='#9B7AAC';});
+edz.addEventListener('dragleave',()=>{edz.style.borderColor='';});
+edz.addEventListener('drop',e=>{e.preventDefault();edz.style.borderColor='';addEvidenceFiles(e.dataTransfer.files);});
+document.getElementById('evidenceInput').addEventListener('change',e=>addEvidenceFiles(e.target.files));
+
+function addEvidenceFiles(files){
+  Array.from(files).forEach(file=>{
+    if(!file.type.startsWith('image/'))return;
+    const reader=new FileReader();
+    reader.onload=ev=>{
+      const img=new Image();
+      img.onload=()=>{
+        fbPush(fbRef(fbDB,`rooms/${roomId}/evidence`),{
+          uid:myUID, nick:myNick,
+          imgData:compressImage(img,600,0.88),
+          ts:Date.now()
+        });
+      };
+      img.src=ev.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+  document.getElementById('evidenceInput').value='';
+}
+
+function renderEvidence(data){
+  const grid=document.getElementById('evidenceGrid');
+  grid.innerHTML='';
+  const items=Object.entries(data).sort((a,b)=>(a[1].ts||0)-(b[1].ts||0));
+  items.forEach(([key,ev])=>{
+    const card=document.createElement('div');card.className='evidence-card';
+    const img=document.createElement('img');img.src=ev.imgData;img.loading='lazy';
+    img.onclick=()=>openEvidenceModal(ev.imgData);
+    const owner=document.createElement('div');owner.className='ev-owner';owner.textContent=ev.nick||'?';
+    card.append(img,owner);
+    if(ev.uid===myUID){
+      const del=document.createElement('button');del.className='ev-del';del.textContent='×';
+      del.onclick=e=>{e.stopPropagation();fbRemove(fbRef(fbDB,`rooms/${roomId}/evidence/${key}`));};
+      card.appendChild(del);
+    }
+    grid.appendChild(card);
+  });
+}
+
+function openEvidenceModal(src){
+  document.getElementById('modalImg').src=src;
+  document.getElementById('modalName').textContent='증빙 서류';
+  document.getElementById('modalOwner').textContent='';
+  document.getElementById('modalBg').classList.add('open');
+}
+
 async function createRoom(){
   if(!checkFB())return;
   myNick=getNick();if(!myNick)return;
@@ -225,7 +307,8 @@ function startListeners(){
     allChars=Object.entries(data).map(([k,v])=>({...v,key:k})).sort((a,b)=>(a.ts||0)-(b.ts||0));
     preloadImages();renderMyItems();drawCake();
   });
-  unsubs=[u1,u2];
+  const u3=fbOnValue(fbRef(fbDB,`rooms/${roomId}/evidence`),snap=>renderEvidence(snap.val()||{}));
+  unsubs=[u1,u2,u3];
 }
 function renderParticipants(data){
   const list=document.getElementById('participantList');list.innerHTML='';
