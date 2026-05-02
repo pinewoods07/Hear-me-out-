@@ -92,6 +92,172 @@ button.btn:active { transform:scale(.97); }
 .setup-notice strong { font-weight:700; }
 footer { text-align:center; font-size:12px; color:var(--muted); margin-top:3rem; font-weight:300; }
 footer span { color:var(--pink); }
+
+/* ── 증빙 서류 패널 ── */
+.evidence-card {
+  background: #fff;
+  border-radius: 20px;
+  padding: 1.5rem;
+  margin-bottom: 1.25rem;
+  box-shadow: 0 2px 20px rgba(45,27,51,.06);
+  border: 1.5px solid rgba(155,122,172,.18);
+  position: relative;
+  overflow: hidden;
+}
+.evidence-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #9B7AAC, #FF6B9D, #FFB347, #9B7AAC);
+  background-size: 200% 100%;
+  animation: shimmer 3s linear infinite;
+}
+@keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+.evidence-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.evidence-title-wrap { display: flex; align-items: center; gap: 8px; }
+.evidence-stamp {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .12em;
+  color: #fff;
+  background: linear-gradient(135deg, #9B7AAC, #D94A78);
+  border-radius: 6px;
+  padding: 3px 9px;
+  text-transform: uppercase;
+}
+.evidence-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: .08em;
+}
+.evidence-count {
+  font-size: 11px;
+  color: var(--muted);
+  background: rgba(155,122,172,.1);
+  border-radius: 999px;
+  padding: 2px 10px;
+  font-weight: 500;
+}
+.evidence-upload-zone {
+  border: 2px dashed rgba(155,122,172,.3);
+  border-radius: 14px;
+  padding: 1rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all .2s;
+  background: rgba(155,122,172,.03);
+  margin-bottom: 1rem;
+}
+.evidence-upload-zone:hover { border-color: #9B7AAC; background: rgba(155,122,172,.07); }
+.evidence-upload-zone input { display: none; }
+.evidence-upload-zone .ico { font-size: 24px; line-height: 1; }
+.evidence-upload-zone p { font-size: 12px; color: var(--muted); margin-top: 5px; font-weight: 300; }
+.evidence-upload-zone strong { color: #9B7AAC; }
+.evidence-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 10px;
+}
+.evidence-item {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  aspect-ratio: 1;
+  background: rgba(155,122,172,.06);
+  border: 1px solid rgba(155,122,172,.15);
+  cursor: pointer;
+  animation: popIn .25s cubic-bezier(.34,1.56,.64,1);
+  transition: transform .15s, box-shadow .15s;
+}
+.evidence-item:hover { transform: scale(1.03); box-shadow: 0 6px 20px rgba(155,122,172,.25); }
+.evidence-item img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.evidence-item-del {
+  position: absolute;
+  top: 5px; right: 5px;
+  background: rgba(45,27,51,.65);
+  border: none;
+  border-radius: 50%;
+  width: 22px; height: 22px;
+  color: #fff;
+  font-size: 13px;
+  line-height: 22px;
+  text-align: center;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity .15s;
+  display: flex; align-items: center; justify-content: center;
+}
+.evidence-item:hover .evidence-item-del { opacity: 1; }
+.evidence-empty {
+  text-align: center;
+  padding: 1.5rem 1rem;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 300;
+  border: 1.5px dashed rgba(155,122,172,.2);
+  border-radius: 12px;
+}
+.evidence-empty .ico { font-size: 28px; display: block; margin-bottom: 6px; }
+
+/* 증빙 이미지 모달 */
+.ev-modal-bg {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(45,27,51,.75);
+  z-index: 1100;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(8px);
+}
+.ev-modal-bg.open { display: flex; }
+.ev-modal-box {
+  position: relative;
+  max-width: min(90vw, 700px);
+  max-height: 88vh;
+  border-radius: 20px;
+  overflow: hidden;
+  animation: modalPop .25s cubic-bezier(.34,1.56,.64,1);
+  box-shadow: 0 20px 60px rgba(45,27,51,.5);
+}
+.ev-modal-box img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  max-height: 88vh;
+  background: #1a0d22;
+}
+.ev-modal-close {
+  position: absolute;
+  top: 12px; right: 12px;
+  background: rgba(45,27,51,.7);
+  border: none;
+  border-radius: 50%;
+  width: 34px; height: 34px;
+  font-size: 18px;
+  cursor: pointer;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(4px);
+}
+.ev-modal-close:hover { background: rgba(242,92,138,.7); }
 </style>
 </head>
 <body>
@@ -137,6 +303,33 @@ footer span { color:var(--pink); }
     <div class="card-title">케이크 미리보기 · 클릭하면 크게 보임</div>
     <div class="cake-stage"><canvas id="cakeCanvas" width="1200" height="900"></canvas></div>
   </div>
+
+  <!-- ── 증빙 서류 패널 ── -->
+  <div class="evidence-card">
+    <div class="evidence-header">
+      <div class="evidence-title-wrap">
+        <span class="evidence-stamp">📎 Evidence</span>
+        <span class="evidence-label">증빙 서류</span>
+      </div>
+      <span class="evidence-count" id="evCount">0장</span>
+    </div>
+    <p style="font-size:12px;color:var(--muted);font-weight:300;margin-bottom:12px;line-height:1.6;">
+      이 가능충이 왜 가능한지 설명할 때 쓸 증거 이미지를 여기에 올려요.<br>케이크랑은 별개로 보관됩니다.
+    </p>
+    <div class="evidence-upload-zone" onclick="document.getElementById('evFileInput').click()">
+      <input type="file" id="evFileInput" accept="image/*" multiple>
+      <div class="ico">🗂️</div>
+      <p><strong>클릭</strong>하거나 드래그해서 증빙 이미지 추가</p>
+    </div>
+    <div class="evidence-grid" id="evidenceGrid">
+      <div class="evidence-empty" id="evidenceEmpty">
+        <span class="ico">🔍</span>
+        증빙 자료가 없어요.<br>이미지를 올려서 가능함을 증명해봐요!
+      </div>
+    </div>
+  </div>
+  <!-- ── /증빙 서류 패널 ── -->
+
   <div class="card">
     <div class="card-title">저장</div>
     <div class="actions"><button class="btn btn-main" onclick="downloadCake()">🎂 이미지로 저장</button></div>
@@ -153,6 +346,15 @@ footer span { color:var(--pink); }
     <div class="modal-tag">가능 ✓</div>
   </div>
 </div>
+
+<!-- 증빙 이미지 확대 모달 -->
+<div class="ev-modal-bg" id="evModalBg" onclick="closeEvModal(event)">
+  <div class="ev-modal-box">
+    <button class="ev-modal-close" onclick="closeEvModal()">×</button>
+    <img id="evModalImg" src="" alt="">
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -173,6 +375,7 @@ window.addEventListener('DOMContentLoaded',()=>{
   if(code) document.getElementById('joinCodeInput').value=code.toUpperCase();
   document.getElementById('nickInput').value=localStorage.getItem('gnick')||'';
   drawCake();
+  initEvidence();
 });
 
 const dz=document.getElementById('dropZone');
@@ -316,13 +519,9 @@ function drawCake(){
     return;
   }
 
-  const CR=48;    // 사진 반지름
-  const STICK=70; // 1층 초 길이
-  const FLOOR_H=CR*2+35; // 층간 높이 간격
-
-  // ✅ 1층 최대 개수: 케이크 가로(rx)와 사진 크기 기준으로 직접 계산
-  // 케이크 위 타원에 균등 배치할 때 겹치지 않는 최대 수
-  // 타원 단축(ryT)이 짧으므로 x방향 간격 기준
+  const CR=48;
+  const STICK=70;
+  const FLOOR_H=CR*2+35;
   const CAP = Math.max(2, Math.floor((rx * 2 * 0.90) / (CR * 2 + 10)));
 
   const floor1=chars.slice(0,CAP);
@@ -330,30 +529,20 @@ function drawCake(){
   const floor3=chars.slice(CAP*2,CAP*3);
   const floors=[floor1,floor2,floor3].filter(f=>f.length>0);
 
-  // ✅ 모든 위치 미리 계산
   const floorData=floors.map((floorChars,fi)=>{
     const n=floorChars.length;
     const sl=STICK+fi*FLOOR_H;
-
-    // 핵심: 각 초의 x 위치를 케이크 가로에 균등하게 분산
-    // y 위치는 타원 방정식으로 계산
     const positions=[];
     for(let i=0;i<n;i++){
-      // x: 케이크 좌우를 n등분
       const t = n===1 ? 0.5 : i/(n-1);
       const px = (cx - rx*0.88) + t*(rx*0.88*2);
-
-      // y: 타원 방정식 y = cy + ryT * sqrt(1 - ((px-cx)/rx)^2)
-      // 케이크 위쪽이므로 음수 방향
       const dxRatio=(px-cx)/rx;
       const py=ctop - ryT*Math.sqrt(Math.max(0,1-dxRatio*dxRatio));
-
       positions.push({px,py,sl});
     }
     return{floorChars,fi,positions,sl};
   });
 
-  // ✅ 1단계: 모든 층의 막대+불꽃 먼저 그리기
   floorData.forEach(({positions,sl})=>{
     positions.forEach(({px,py})=>{
       const sw=7;
@@ -371,13 +560,11 @@ function drawCake(){
     });
   });
 
-  // ✅ 2단계: 모든 층의 사진+이름 나중에 그리기 → 막대가 사진 뒤로
   floorData.forEach(({floorChars,fi,positions,sl})=>{
     positions.forEach(({px,py},i)=>{
       const icy=py-sl-CR;
       const globalIdx=allChars.filter(c=>c.imgData).indexOf(floorChars[i]);
 
-      // 흰 테두리
       ctx.save();
       ctx.beginPath();ctx.arc(px,icy,CR+4,0,Math.PI*2);
       ctx.fillStyle='#fff';ctx.shadowColor='rgba(242,92,138,.4)';ctx.shadowBlur=16;ctx.fill();
@@ -387,7 +574,6 @@ function drawCake(){
       ctx.strokeStyle='#FF9BBB';ctx.lineWidth=3;ctx.stroke();
       ctx.restore();
 
-      // 사진
       const img=getCachedImg(floorChars[i].imgData);
       if(img){
         ctx.save();ctx.beginPath();ctx.arc(px,icy,CR,0,Math.PI*2);ctx.clip();
@@ -397,7 +583,6 @@ function drawCake(){
         ctx.fillStyle='rgba(255,155,187,.3)';ctx.fill();ctx.restore();
       }
 
-      // 이름
       const nm=(floorChars[i].name||'').slice(0,8)+((floorChars[i].name?.length||0)>8?'…':'');
       if(nm){
         ctx.font='bold 13px "Gmarket Sans",sans-serif';
@@ -408,7 +593,6 @@ function drawCake(){
         ctx.fillText(nm,px,ly+15);
       }
 
-      // 닉네임
       if(floorChars[i].nick){
         ctx.font='11px "Gmarket Sans",sans-serif';
         ctx.fillStyle='rgba(155,122,172,.85)';ctx.textAlign='center';
@@ -457,7 +641,7 @@ function openModal(c){
 function closeModal(e){
   if(!e||e.target===document.getElementById('modalBg'))document.getElementById('modalBg').classList.remove('open');
 }
-document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeModal();closeEvModal();}});
 
 async function leaveRoom(){
   if(roomId){try{await fbRemove(fbRef(fbDB,`rooms/${roomId}/participants/${myUID}`));}catch(_){}}
@@ -499,6 +683,82 @@ function toast(msg){
   const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
   clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2800);
 }
+
+/* ══════════════════════════════
+   증빙 서류 패널 (로컬 전용, Firebase 무관)
+══════════════════════════════ */
+let evidenceItems = []; // { id, src, filename }
+
+function initEvidence() {
+  const evDz = document.getElementById('evidenceGrid');
+  const evInput = document.getElementById('evFileInput');
+
+  // 드래그앤드롭
+  const evCard = document.querySelector('.evidence-card');
+  evCard.addEventListener('dragover', e => { e.preventDefault(); evCard.style.outline = '2px dashed #9B7AAC'; });
+  evCard.addEventListener('dragleave', () => { evCard.style.outline = ''; });
+  evCard.addEventListener('drop', e => { e.preventDefault(); evCard.style.outline = ''; addEvidenceFiles(e.dataTransfer.files); });
+
+  evInput.addEventListener('change', e => { addEvidenceFiles(e.target.files); e.target.value = ''; });
+}
+
+function addEvidenceFiles(files) {
+  Array.from(files).forEach(file => {
+    if (!file.type.startsWith('image/')) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      evidenceItems.push({ id: 'ev_' + Date.now() + '_' + Math.random().toString(36).slice(2,6), src: ev.target.result, filename: file.name });
+      renderEvidence();
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function removeEvidence(id) {
+  evidenceItems = evidenceItems.filter(e => e.id !== id);
+  renderEvidence();
+}
+
+function renderEvidence() {
+  const grid = document.getElementById('evidenceGrid');
+  const empty = document.getElementById('evidenceEmpty');
+  const count = document.getElementById('evCount');
+
+  count.textContent = evidenceItems.length + '장';
+
+  if (evidenceItems.length === 0) {
+    grid.innerHTML = '';
+    const emptyDiv = document.createElement('div');
+    emptyDiv.className = 'evidence-empty';
+    emptyDiv.id = 'evidenceEmpty';
+    emptyDiv.innerHTML = '<span class="ico">🔍</span>증빙 자료가 없어요.<br>이미지를 올려서 가능함을 증명해봐요!';
+    grid.appendChild(emptyDiv);
+    return;
+  }
+
+  grid.innerHTML = '';
+  evidenceItems.forEach(item => {
+    const div = document.createElement('div');
+    div.className = 'evidence-item';
+    div.innerHTML = `
+      <img src="${item.src}" alt="${item.filename}" loading="lazy">
+      <button class="evidence-item-del" onclick="event.stopPropagation();removeEvidence('${item.id}')" title="삭제">×</button>
+    `;
+    div.addEventListener('click', () => openEvModal(item.src));
+    grid.appendChild(div);
+  });
+}
+
+function openEvModal(src) {
+  document.getElementById('evModalImg').src = src;
+  document.getElementById('evModalBg').classList.add('open');
+}
+function closeEvModal(e) {
+  if (!e || e.target === document.getElementById('evModalBg')) {
+    document.getElementById('evModalBg').classList.remove('open');
+  }
+}
+
 drawCake();
 </script>
 </body>
