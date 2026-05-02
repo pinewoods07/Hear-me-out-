@@ -31,14 +31,16 @@ try {
 *,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
 body { font-family:'Gmarket Sans','Noto Sans KR',sans-serif; background:var(--cream); color:var(--dark); min-height:100vh; overflow-x:hidden; }
 body::before { content:''; position:fixed; inset:0; pointer-events:none; z-index:0;
-  background:radial-gradient(circle at 15% 20%,rgba(255,107,157,.12) 0%,transparent 50%),radial-gradient(circle at 85% 75%,rgba(255,179,71,.10) 0%,transparent 50%); }
+  background:radial-gradient(circle at 15% 20%,rgba(255,107,157,.12) 0%,transparent 50%),
+             radial-gradient(circle at 85% 75%,rgba(255,179,71,.10) 0%,transparent 50%); }
 .screen { display:none; position:relative; z-index:1; }
 .screen.active { display:block; }
 #homeScreen { max-width:480px; margin:0 auto; padding:3rem 1.5rem 4rem; text-align:center; }
 .logo { font-size:clamp(2.2rem,8vw,3.2rem); margin-bottom:.4rem; }
 .logo-title { font-size:clamp(1.4rem,5vw,2rem); font-weight:700; color:var(--cake1); letter-spacing:-.02em; line-height:1.2; margin-bottom:6px; }
 .logo-sub { font-size:13px; color:var(--muted); font-weight:300; margin-bottom:2.5rem; }
-.hcard { background:#fff; border-radius:20px; padding:1.5rem; margin-bottom:1rem; box-shadow:0 2px 20px rgba(45,27,51,.06); border:1px solid rgba(242,92,138,.08); text-align:left; }
+.hcard { background:#fff; border-radius:20px; padding:1.5rem; margin-bottom:1rem;
+  box-shadow:0 2px 20px rgba(45,27,51,.06); border:1px solid rgba(242,92,138,.08); text-align:left; }
 .hcard h3 { font-size:12px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.08em; margin-bottom:.9rem; }
 #roomScreen { max-width:1100px; margin:0 auto; padding:1.5rem 1.25rem 4rem; }
 .room-header { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:1.25rem; }
@@ -47,14 +49,17 @@ body::before { content:''; position:fixed; inset:0; pointer-events:none; z-index
 .code-badge .code { font-weight:700; color:var(--cake1); font-size:15px; letter-spacing:.08em; }
 .copy-btn { background:none; border:none; cursor:pointer; font-size:14px; color:var(--muted); padding:2px; }
 .copy-btn:hover { color:var(--pink); }
-.card { background:#fff; border-radius:20px; padding:1.5rem; margin-bottom:1.25rem; box-shadow:0 2px 20px rgba(45,27,51,.06); border:1px solid rgba(242,92,138,.08); }
+.card { background:#fff; border-radius:20px; padding:1.5rem; margin-bottom:1.25rem;
+  box-shadow:0 2px 20px rgba(45,27,51,.06); border:1px solid rgba(242,92,138,.08); }
 .card-title { font-size:12px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.08em; margin-bottom:1rem; }
 .participants { display:flex; flex-wrap:wrap; gap:8px; }
-.pchip { display:flex; align-items:center; gap:6px; background:rgba(255,107,157,.07); border:1px solid rgba(242,92,138,.15); border-radius:999px; padding:4px 10px; font-size:12px; font-weight:700; color:var(--text); animation:popIn .2s cubic-bezier(.34,1.56,.64,1); }
+.pchip { display:flex; align-items:center; gap:6px; background:rgba(255,107,157,.07); border:1px solid rgba(242,92,138,.15);
+  border-radius:999px; padding:4px 10px; font-size:12px; font-weight:700; color:var(--text); animation:popIn .2s cubic-bezier(.34,1.56,.64,1); }
 .pchip .dot { width:6px; height:6px; border-radius:50%; background:var(--green); flex-shrink:0; }
 .me-badge { font-size:10px; color:var(--pink); background:rgba(255,107,157,.12); border-radius:999px; padding:1px 6px; }
 @keyframes popIn { from{transform:scale(.7);opacity:0} to{transform:scale(1);opacity:1} }
-.upload-zone { border:2px dashed rgba(242,92,138,.3); border-radius:14px; padding:1.25rem 1rem; text-align:center; cursor:pointer; transition:all .2s; background:rgba(255,107,157,.03); }
+.upload-zone { border:2px dashed rgba(242,92,138,.3); border-radius:14px; padding:1.25rem 1rem; text-align:center;
+  cursor:pointer; transition:all .2s; background:rgba(255,107,157,.03); }
 .upload-zone:hover { border-color:var(--pink); background:rgba(255,107,157,.06); }
 .upload-zone input { display:none; }
 .upload-zone .ico { font-size:28px; line-height:1; }
@@ -68,7 +73,8 @@ body::before { content:''; position:fixed; inset:0; pointer-events:none; z-index
 .cake-stage { background:linear-gradient(160deg,#FFF0FA 0%,#FFF8F0 100%); border-radius:16px; text-align:center; padding:1rem .5rem; overflow-x:auto; }
 #cakeCanvas { display:block; margin:0 auto; max-width:100%; cursor:default; }
 .actions { display:flex; gap:10px; flex-wrap:wrap; }
-input[type="text"] { width:100%; padding:10px 14px; border:1.5px solid rgba(155,122,172,.25); border-radius:12px; font-family:inherit; font-size:14px; color:var(--text); background:rgba(255,107,157,.03); outline:none; transition:border-color .15s; }
+input[type="text"] { width:100%; padding:10px 14px; border:1.5px solid rgba(155,122,172,.25); border-radius:12px;
+  font-family:inherit; font-size:14px; color:var(--text); background:rgba(255,107,157,.03); outline:none; transition:border-color .15s; }
 input[type="text"]:focus { border-color:var(--pink); background:rgba(255,107,157,.05); }
 button.btn { font-family:inherit; font-size:13px; font-weight:700; padding:10px 20px; border-radius:999px; cursor:pointer; transition:all .15s; border:none; }
 button.btn:active { transform:scale(.97); }
@@ -116,7 +122,9 @@ footer span { color:var(--pink); }
   <div class="room-header">
     <h2 id="roomTitle">방</h2>
     <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-      <div class="code-badge">방 코드 <span class="code" id="roomCodeDisplay"></span><button class="copy-btn" onclick="copyCode()">📋</button></div>
+      <div class="code-badge">방 코드 <span class="code" id="roomCodeDisplay"></span>
+        <button class="copy-btn" onclick="copyCode()">📋</button>
+      </div>
       <button class="btn btn-leave" onclick="leaveRoom()">나가기</button>
     </div>
   </div>
@@ -164,10 +172,14 @@ const ctx=canvas.getContext('2d');
 const imgCache={};
 
 window.addEventListener('firebase-ready',()=>{
-  const fb=window._fb; fbDB=fb.db; fbRef=fb.ref; fbSet=fb.set; fbPush=fb.push; fbOnValue=fb.onValue; fbRemove=fb.remove;
-  fbReady=true; document.getElementById('fbNotice').style.display='none';
+  const fb=window._fb;
+  fbDB=fb.db;fbRef=fb.ref;fbSet=fb.set;fbPush=fb.push;fbOnValue=fb.onValue;fbRemove=fb.remove;
+  fbReady=true;
+  document.getElementById('fbNotice').style.display='none';
 });
-window.addEventListener('firebase-error',()=>{ document.getElementById('fbNotice').innerHTML='❌ <strong>Firebase 연결 실패!</strong>'; });
+window.addEventListener('firebase-error',()=>{
+  document.getElementById('fbNotice').innerHTML='❌ <strong>Firebase 연결 실패!</strong>';
+});
 window.addEventListener('DOMContentLoaded',()=>{
   const code=new URLSearchParams(location.search).get('room');
   if(code) document.getElementById('joinCodeInput').value=code.toUpperCase();
@@ -182,19 +194,23 @@ dz.addEventListener('drop',e=>{e.preventDefault();dz.style.borderColor='';addFil
 document.getElementById('fileInput').addEventListener('change',e=>addFiles(e.target.files));
 
 async function createRoom(){
-  if(!checkFB())return; myNick=getNick(); if(!myNick)return;
-  roomId=Math.random().toString(36).slice(2,8).toUpperCase(); await enterRoom();
+  if(!checkFB())return;
+  myNick=getNick();if(!myNick)return;
+  roomId=Math.random().toString(36).slice(2,8).toUpperCase();
+  await enterRoom();
 }
 async function joinRoom(){
-  if(!checkFB())return; myNick=getNick(); if(!myNick)return;
+  if(!checkFB())return;
+  myNick=getNick();if(!myNick)return;
   const code=document.getElementById('joinCodeInput').value.trim().toUpperCase();
   if(code.length!==6){toast('방 코드를 6자리로 입력해줘');return;}
-  roomId=code; await enterRoom();
+  roomId=code;await enterRoom();
 }
 async function enterRoom(){
   localStorage.setItem('gnick',myNick);
-  try{ await fbSet(fbRef(fbDB,`rooms/${roomId}/participants/${myUID}`),{nick:myNick,joinedAt:Date.now()}); }
-  catch(e){toast('DB 오류!');console.error(e);return;}
+  try{
+    await fbSet(fbRef(fbDB,`rooms/${roomId}/participants/${myUID}`),{nick:myNick,joinedAt:Date.now()});
+  }catch(e){toast('DB 오류!');console.error(e);return;}
   document.getElementById('homeScreen').classList.remove('active');
   document.getElementById('roomScreen').classList.add('active');
   document.getElementById('roomCodeDisplay').textContent=roomId;
@@ -207,14 +223,14 @@ function startListeners(){
   const u2=fbOnValue(fbRef(fbDB,`rooms/${roomId}/items`),snap=>{
     const data=snap.val()||{};
     allChars=Object.entries(data).map(([k,v])=>({...v,key:k})).sort((a,b)=>(a.ts||0)-(b.ts||0));
-    preloadImages(); renderMyItems(); drawCake();
+    preloadImages();renderMyItems();drawCake();
   });
   unsubs=[u1,u2];
 }
 function renderParticipants(data){
-  const list=document.getElementById('participantList'); list.innerHTML='';
+  const list=document.getElementById('participantList');list.innerHTML='';
   Object.entries(data).forEach(([uid,p])=>{
-    const chip=document.createElement('div'); chip.className='pchip';
+    const chip=document.createElement('div');chip.className='pchip';
     chip.innerHTML=`<div class="dot"></div><span>${p.nick||'익명'}</span>`+(uid===myUID?'<span class="me-badge">나</span>':'');
     list.appendChild(chip);
   });
@@ -241,16 +257,16 @@ function addFiles(files){
   document.getElementById('fileInput').value='';
 }
 function renderMyItems(){
-  const wrap=document.getElementById('myItems'); wrap.innerHTML='';
+  const wrap=document.getElementById('myItems');wrap.innerHTML='';
   allChars.filter(c=>c.uid===myUID).forEach(c=>{
-    const chip=document.createElement('div'); chip.className='mychip';
-    const img=document.createElement('img'); img.src=c.imgData;
+    const chip=document.createElement('div');chip.className='mychip';
+    const img=document.createElement('img');img.src=c.imgData;
     const inp=document.createElement('input');
-    inp.value=c.name||''; inp.placeholder='이름'; inp.maxLength=10;
+    inp.value=c.name||'';inp.placeholder='이름';inp.maxLength=10;
     inp.oninput=e=>fbSet(fbRef(fbDB,`rooms/${roomId}/items/${c.key}/name`),e.target.value);
-    const btn=document.createElement('button'); btn.textContent='×';
+    const btn=document.createElement('button');btn.textContent='×';
     btn.onclick=()=>fbRemove(fbRef(fbDB,`rooms/${roomId}/items/${c.key}`));
-    chip.append(img,inp,btn); wrap.appendChild(chip);
+    chip.append(img,inp,btn);wrap.appendChild(chip);
   });
 }
 function preloadImages(){
@@ -258,7 +274,7 @@ function preloadImages(){
     if(!c.imgData||(imgCache[c.imgData]?.complete&&imgCache[c.imgData]?.naturalWidth))return;
     const img=new Image();
     img.onload=()=>{imgCache[c.imgData]=img;drawCake();};
-    img.src=c.imgData; imgCache[c.imgData]=img;
+    img.src=c.imgData;imgCache[c.imgData]=img;
   });
 }
 function getCachedImg(src){
@@ -266,9 +282,9 @@ function getCachedImg(src){
   return(img&&img.complete&&img.naturalWidth)?img:null;
 }
 
-/* ══════════════════════════════
+/* ════════════════════════
    케이크 그리기
-══════════════════════════════ */
+════════════════════════ */
 function drawCake(){
   const W=1200,H=900;
   ctx.clearRect(0,0,W,H);
@@ -277,12 +293,14 @@ function drawCake(){
   const cx=W/2, cbottom=H-60, ctop=cbottom-155;
   const rx=500, ryT=66, ryB=43;
 
+  /* 배경 점 */
   ctx.globalAlpha=.11;
   [[80,40,'#FF6B9D'],[1120,55,'#FFB347'],[80,840,'#FF9BBB'],[1120,840,'#FF6B9D'],[400,22,'#FFB347'],[800,22,'#FF9BBB']].forEach(([x,y,c])=>{
     ctx.beginPath();ctx.arc(x,y,8,0,Math.PI*2);ctx.fillStyle=c;ctx.fill();
   });
   ctx.globalAlpha=1;
 
+  /* 케이크 몸통 */
   efill(cx,cbottom,rx,ryB,'#D94A78');
   ctx.beginPath();
   ctx.moveTo(cx-rx,ctop);ctx.lineTo(cx-rx,cbottom);
@@ -292,22 +310,33 @@ function drawCake(){
   sg.addColorStop(0,'#F25C8A');sg.addColorStop(.5,'#E8547F');sg.addColorStop(1,'#D94A78');
   ctx.fillStyle=sg;ctx.fill();
 
+  /* 크림 흘림 */
   for(let i=0;i<20;i++){
-    const a=Math.PI/19*i,ex=cx+Math.cos(Math.PI-a)*rx*.99,ey=ctop+Math.sin(Math.PI-a)*ryT*.5,dl=14+(i%3)*10;
+    const a=Math.PI/19*i;
+    const ex=cx+Math.cos(Math.PI-a)*rx*.99;
+    const ey=ctop+Math.sin(Math.PI-a)*ryT*.5;
+    const dl=14+(i%3)*10;
     ctx.beginPath();ctx.moveTo(ex,ey-2);
     ctx.bezierCurveTo(ex-2,ey+dl*.5,ex+2,ey+dl*.8,ex,ey+dl);
     ctx.strokeStyle='#FFF0F5';ctx.lineWidth=9;ctx.lineCap='round';ctx.stroke();
   }
+
+  /* 윗면 */
   efill(cx,ctop,rx,ryT,'#FF9BBB');
   estroke(cx,ctop,rx,ryT,'#FFF0F5',8);
+
+  /* 크림 방울 */
   for(let i=0;i<24;i++){
     const a=(2*Math.PI/24)*i;
     ctx.beginPath();ctx.arc(cx+Math.cos(a)*rx*.87,ctop+Math.sin(a)*ryT*.87,7,0,Math.PI*2);
     ctx.fillStyle='#FFF0F5';ctx.fill();
   }
+
+  /* 딸기 */
   [0.3,1.0,1.7,2.4,3.1,3.8,4.5,5.2,5.9].forEach(a=>
     drawStrawberry(cx+Math.cos(a)*rx*.62,ctop+Math.sin(a)*ryT*.62,12));
 
+  /* ══ 초 배치 ══ */
   const chars=allChars.filter(c=>c.imgData);
   if(chars.length===0){
     ctx.font='20px "Gmarket Sans",sans-serif';
@@ -316,44 +345,40 @@ function drawCake(){
     return;
   }
 
-  const CR=48;    // 사진 반지름
-  const STICK=70; // 1층 초 길이
-  const FLOOR_H=CR*2+35; // 층간 높이 간격
+  const CR=48;
+  const STICK=70;
+  const FLOOR_H=CR*2+35;
 
-  // ✅ 1층 최대 개수: 케이크 가로(rx)와 사진 크기 기준으로 직접 계산
-  // 케이크 위 타원에 균등 배치할 때 겹치지 않는 최대 수
-  // 타원 단축(ryT)이 짧으므로 x방향 간격 기준
-  const CAP = Math.max(2, Math.floor((rx * 2 * 0.90) / (CR * 2 + 10)));
+  /* 1층 최대 개수 */
+  const CAP=Math.max(2,Math.floor((rx*2*0.90)/(CR*2+10)));
 
-  const floor1=chars.slice(0,CAP);
-  const floor2=chars.slice(CAP,CAP*2);
-  const floor3=chars.slice(CAP*2,CAP*3);
-  const floors=[floor1,floor2,floor3].filter(f=>f.length>0);
+  const floors=[
+    chars.slice(0,CAP),
+    chars.slice(CAP,CAP*2),
+    chars.slice(CAP*2,CAP*3)
+  ].filter(f=>f.length>0);
 
-  // ✅ 모든 위치 미리 계산
+  /* 위치 계산 */
   const floorData=floors.map((floorChars,fi)=>{
     const n=floorChars.length;
     const sl=STICK+fi*FLOOR_H;
-
-    // 핵심: 각 초의 x 위치를 케이크 가로에 균등하게 분산
-    // y 위치는 타원 방정식으로 계산
     const positions=[];
     for(let i=0;i<n;i++){
-      // x: 케이크 좌우를 n등분
-      const t = n===1 ? 0.5 : i/(n-1);
-      const px = (cx - rx*0.88) + t*(rx*0.88*2);
+      /* x: 케이크 좌우 균등 분산 */
+      const t=n===1?0.5:i/(n-1);
+      const px=(cx-rx*0.88)+t*(rx*0.88*2);
 
-      // y: 타원 방정식 y = cy + ryT * sqrt(1 - ((px-cx)/rx)^2)
-      // 케이크 위쪽이므로 음수 방향
+      /* ✅ y: 타원 앞쪽 40% 지점에 꽂히게 */
       const dxRatio=(px-cx)/rx;
-      const py=ctop - ryT*Math.sqrt(Math.max(0,1-dxRatio*dxRatio));
+      const ellipseY=ryT*Math.sqrt(Math.max(0,1-dxRatio*dxRatio));
+      const py=ctop+ellipseY*0.4;
 
       positions.push({px,py,sl});
     }
     return{floorChars,fi,positions,sl};
   });
 
-  // ✅ 1단계: 모든 층의 막대+불꽃 먼저 그리기
+  /* ── 1단계: 모든 막대+불꽃 먼저 ── */
   floorData.forEach(({positions,sl})=>{
     positions.forEach(({px,py})=>{
       const sw=7;
@@ -371,13 +396,13 @@ function drawCake(){
     });
   });
 
-  // ✅ 2단계: 모든 층의 사진+이름 나중에 그리기 → 막대가 사진 뒤로
+  /* ── 2단계: 모든 사진+이름 나중에 → 막대가 사진 뒤로 ── */
   floorData.forEach(({floorChars,fi,positions,sl})=>{
     positions.forEach(({px,py},i)=>{
       const icy=py-sl-CR;
       const globalIdx=allChars.filter(c=>c.imgData).indexOf(floorChars[i]);
 
-      // 흰 테두리
+      /* 흰 테두리 */
       ctx.save();
       ctx.beginPath();ctx.arc(px,icy,CR+4,0,Math.PI*2);
       ctx.fillStyle='#fff';ctx.shadowColor='rgba(242,92,138,.4)';ctx.shadowBlur=16;ctx.fill();
@@ -387,7 +412,7 @@ function drawCake(){
       ctx.strokeStyle='#FF9BBB';ctx.lineWidth=3;ctx.stroke();
       ctx.restore();
 
-      // 사진
+      /* 사진 */
       const img=getCachedImg(floorChars[i].imgData);
       if(img){
         ctx.save();ctx.beginPath();ctx.arc(px,icy,CR,0,Math.PI*2);ctx.clip();
@@ -397,7 +422,7 @@ function drawCake(){
         ctx.fillStyle='rgba(255,155,187,.3)';ctx.fill();ctx.restore();
       }
 
-      // 이름
+      /* 이름 */
       const nm=(floorChars[i].name||'').slice(0,8)+((floorChars[i].name?.length||0)>8?'…':'');
       if(nm){
         ctx.font='bold 13px "Gmarket Sans",sans-serif';
@@ -408,7 +433,7 @@ function drawCake(){
         ctx.fillText(nm,px,ly+15);
       }
 
-      // 닉네임
+      /* 닉네임 */
       if(floorChars[i].nick){
         ctx.font='11px "Gmarket Sans",sans-serif';
         ctx.fillStyle='rgba(155,122,172,.85)';ctx.textAlign='center';
@@ -419,6 +444,7 @@ function drawCake(){
     });
   });
 
+  /* 서명 */
   ctx.font='bold 14px "Gmarket Sans",sans-serif';
   ctx.fillStyle='rgba(155,122,172,.32)';ctx.textAlign='center';
   ctx.fillText(roomId?`가능충 케이크 · ${roomId}방`:'가능충 케이크 메이커',W/2,H-14);
@@ -455,7 +481,8 @@ function openModal(c){
   document.getElementById('modalBg').classList.add('open');
 }
 function closeModal(e){
-  if(!e||e.target===document.getElementById('modalBg'))document.getElementById('modalBg').classList.remove('open');
+  if(!e||e.target===document.getElementById('modalBg'))
+    document.getElementById('modalBg').classList.remove('open');
 }
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
 
@@ -493,7 +520,10 @@ function compressImage(img,size,quality){
   ct.drawImage(img,(img.width-s)/2,(img.height-s)/2,s,s,0,0,size,size);
   return c.toDataURL('image/jpeg',quality);
 }
-function getNick(){const n=document.getElementById('nickInput').value.trim();if(!n){toast('닉네임을 입력해줘');return'';}return n;}
+function getNick(){
+  const n=document.getElementById('nickInput').value.trim();
+  if(!n){toast('닉네임을 입력해줘');return'';}return n;
+}
 function checkFB(){if(!fbReady){toast('Firebase 연결 중!');return false;}return true;}
 function toast(msg){
   const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
