@@ -162,6 +162,10 @@ footer span { color:var(--pink); }
     <div class="my-items" id="myItems"></div>
   </div>
   <div class="card">
+    <div class="card-title">케이크 미리보기 · 클릭하면 크게 보임</div>
+    <div class="cake-stage"><canvas id="cakeCanvas" width="1200" height="900"></canvas></div>
+  </div>
+  <div class="card">
     <div class="card-title">📂 증빙 서류 · 왜 좋은지 설명용</div>
     <div class="upload-zone2" id="evidenceDZ" onclick="document.getElementById('evidenceInput').click()">
       <input type="file" id="evidenceInput" accept="image/*" multiple>
@@ -169,10 +173,6 @@ footer span { color:var(--pink); }
       <p><strong>클릭</strong>하거나 드래그해서 증빙 이미지 추가</p>
     </div>
     <div class="evidence-grid" id="evidenceGrid"></div>
-  </div>
-  <div class="card">
-    <div class="card-title">케이크 미리보기 · 클릭하면 크게 보임</div>
-    <div class="cake-stage"><canvas id="cakeCanvas" width="1200" height="900"></canvas></div>
   </div>
   <div class="card">
     <div class="card-title">저장</div>
@@ -188,6 +188,14 @@ footer span { color:var(--pink); }
     <div class="modal-name" id="modalName"></div>
     <div class="modal-owner" id="modalOwner"></div>
     <div class="modal-tag">가능 ✓</div>
+  </div>
+</div>
+
+<div class="modal-bg" id="evidenceModalBg" onclick="closeEvidenceModal(event)">
+  <div class="modal-box" style="max-width:600px;">
+    <button class="modal-close" onclick="closeEvidenceModal()">×</button>
+    <img id="evidenceModalImg" src="" alt="" style="width:100%;height:auto;border-radius:12px;border:none;box-shadow:0 4px 20px rgba(45,27,51,.2);margin-bottom:1rem;">
+    <div class="modal-owner" id="evidenceModalOwner"></div>
   </div>
 </div>
 <div class="toast" id="toast"></div>
@@ -256,7 +264,7 @@ function renderEvidence(data){
   items.forEach(([key,ev])=>{
     const card=document.createElement('div');card.className='evidence-card';
     const img=document.createElement('img');img.src=ev.imgData;img.loading='lazy';
-    img.onclick=()=>openEvidenceModal(ev.imgData);
+    img.onclick=()=>openEvidenceModal(ev.imgData, ev.nick);
     const owner=document.createElement('div');owner.className='ev-owner';owner.textContent=ev.nick||'?';
     card.append(img,owner);
     if(ev.uid===myUID){
@@ -268,11 +276,14 @@ function renderEvidence(data){
   });
 }
 
-function openEvidenceModal(src){
-  document.getElementById('modalImg').src=src;
-  document.getElementById('modalName').textContent='증빙 서류';
-  document.getElementById('modalOwner').textContent='';
-  document.getElementById('modalBg').classList.add('open');
+function openEvidenceModal(src, nick){
+  document.getElementById('evidenceModalImg').src=src;
+  document.getElementById('evidenceModalOwner').textContent=nick?`올린 사람: ${nick}`:'';
+  document.getElementById('evidenceModalBg').classList.add('open');
+}
+function closeEvidenceModal(e){
+  if(!e||e.target===document.getElementById('evidenceModalBg'))
+    document.getElementById('evidenceModalBg').classList.remove('open');
 }
 
 async function createRoom(){
@@ -567,7 +578,7 @@ function closeModal(e){
   if(!e||e.target===document.getElementById('modalBg'))
     document.getElementById('modalBg').classList.remove('open');
 }
-document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeModal();closeEvidenceModal();}});
 
 async function leaveRoom(){
   if(roomId){try{await fbRemove(fbRef(fbDB,`rooms/${roomId}/participants/${myUID}`));}catch(_){}}
