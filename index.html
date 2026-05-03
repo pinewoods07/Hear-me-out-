@@ -194,7 +194,7 @@ footer span { color:var(--pink); }
 <div class="modal-bg" id="evidenceModalBg" onclick="closeEvidenceModal(event)">
   <div class="modal-box" style="max-width:600px;">
     <button class="modal-close" onclick="closeEvidenceModal()">×</button>
-    <img id="evidenceModalImg" src="" alt="" style="width:100%;height:auto;border-radius:12px;border:none;box-shadow:0 4px 20px rgba(45,27,51,.2);margin-bottom:1rem;">
+    <img id="evidenceModalImg" src="" alt="" style="width:100%;height:auto;max-height:75vh;object-fit:contain;border-radius:12px;border:none;box-shadow:0 4px 20px rgba(45,27,51,.2);margin-bottom:1rem;">
     <div class="modal-owner" id="evidenceModalOwner"></div>
   </div>
 </div>
@@ -246,7 +246,7 @@ function addEvidenceFiles(files){
       img.onload=()=>{
         fbPush(fbRef(fbDB,`rooms/${roomId}/evidence`),{
           uid:myUID, nick:myNick,
-          imgData:compressImage(img,600,0.88),
+          imgData:compressImageFull(img,1200,0.88),
           ts:Date.now()
         });
       };
@@ -612,6 +612,15 @@ function compressImage(img,size,quality){
   const c=document.createElement('canvas');c.width=c.height=size;
   const ct=c.getContext('2d');const s=Math.min(img.width,img.height);
   ct.drawImage(img,(img.width-s)/2,(img.height-s)/2,s,s,0,0,size,size);
+  return c.toDataURL('image/jpeg',quality);
+}
+function compressImageFull(img,maxSize,quality){
+  const ratio=img.width/img.height;
+  let w,h;
+  if(img.width>=img.height){w=Math.min(img.width,maxSize);h=Math.round(w/ratio);}
+  else{h=Math.min(img.height,maxSize);w=Math.round(h*ratio);}
+  const c=document.createElement('canvas');c.width=w;c.height=h;
+  c.getContext('2d').drawImage(img,0,0,w,h);
   return c.toDataURL('image/jpeg',quality);
 }
 function getNick(){
