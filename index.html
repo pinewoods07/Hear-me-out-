@@ -100,35 +100,49 @@ footer { text-align:center; font-size:12px; color:var(--muted); margin-top:3rem;
 footer span { color:var(--pink); }
 
 /* ══ 증빙 서류 ══ */
-.evidence-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(120px,1fr)); gap:10px; margin-top:14px; }
-.evidence-card { position:relative; border-radius:12px; overflow:hidden; background:#fff;
-  box-shadow:0 2px 10px rgba(45,27,51,.07); border:1px solid rgba(242,92,138,.1); aspect-ratio:1; cursor:pointer; }
-.evidence-card img { width:100%; height:100%; object-fit:cover; display:block; transition:transform .2s; }
-.evidence-card:hover img { transform:scale(1.04); }
-.evidence-card .ev-owner { position:absolute; bottom:0; left:0; right:0;
-  background:linear-gradient(transparent,rgba(45,27,51,.7));
-  color:#fff; font-size:11px; font-weight:700; padding:16px 6px 5px; text-align:center; }
-.evidence-card .ev-del { position:absolute; top:5px; right:5px; background:rgba(217,74,120,.85); color:#fff;
+.evidence-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(130px,1fr)); gap:10px; margin-top:14px; }
+
+/* 이미지 카드 */
+.evidence-card {
+  position:relative; border-radius:12px; overflow:hidden; background:#fff;
+  box-shadow:0 2px 10px rgba(45,27,51,.07); border:1px solid rgba(242,92,138,.1);
+  cursor:pointer; display:flex; flex-direction:column;
+}
+.evidence-card .ev-img-wrap {
+  width:100%; aspect-ratio:1; overflow:hidden;
+}
+.evidence-card .ev-img-wrap img {
+  width:100%; height:100%; object-fit:cover; display:block; transition:transform .2s;
+}
+.evidence-card:hover .ev-img-wrap img { transform:scale(1.04); }
+.evidence-card .ev-info {
+  padding:6px 8px 7px;
+  background:#fff;
+}
+.evidence-card .ev-filename {
+  font-size:11px; font-weight:700; color:var(--text);
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+.evidence-card .ev-owner {
+  font-size:10px; color:var(--muted); margin-top:2px;
+}
+.evidence-card .ev-del {
+  position:absolute; top:5px; right:5px; background:rgba(217,74,120,.85); color:#fff;
   border:none; border-radius:50%; width:20px; height:20px; font-size:12px; cursor:pointer;
-  display:none; align-items:center; justify-content:center; line-height:1; }
+  display:none; align-items:center; justify-content:center; line-height:1;
+}
 .evidence-card:hover .ev-del { display:flex; }
 
-/* ══ 음성 카드 ══ */
+/* 음성 카드 */
 .evidence-audio-card {
   position:relative; border-radius:12px; background:#fff;
   box-shadow:0 2px 10px rgba(45,27,51,.07); border:1px solid rgba(155,122,172,.2);
-  padding:14px 12px 10px; display:flex; flex-direction:column; align-items:center; gap:8px;
+  padding:14px 12px 10px; display:flex; flex-direction:column; align-items:center; gap:6px;
 }
 .evidence-audio-card .audio-icon { font-size:28px; line-height:1; }
-.evidence-audio-card .audio-name {
-  font-size:11px; color:var(--text); font-weight:700;
-  text-align:center; width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
-}
+.evidence-audio-card .audio-name { font-size:11px; color:var(--text); font-weight:700; text-align:center; width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .evidence-audio-card .audio-nick { font-size:10px; color:var(--muted); }
-.evidence-audio-card audio {
-  width:100%; height:32px; margin-top:2px;
-  accent-color:var(--pink);
-}
+.evidence-audio-card audio { width:100%; height:32px; margin-top:2px; accent-color:var(--pink); }
 .evidence-audio-card .ev-del {
   position:absolute; top:5px; right:5px; background:rgba(217,74,120,.85); color:#fff;
   border:none; border-radius:50%; width:20px; height:20px; font-size:12px; cursor:pointer;
@@ -190,19 +204,15 @@ footer span { color:var(--pink); }
     <div class="card-title">케이크 미리보기 · 클릭하면 크게 보임</div>
     <div class="cake-stage"><canvas id="cakeCanvas" width="1200" height="900"></canvas></div>
   </div>
-
-  <!-- ✅ 증빙 서류 카드 -->
   <div class="card">
     <div class="card-title">📂 증빙 서류 · 왜 좋은지 설명용</div>
     <div class="upload-zone2" id="evidenceDZ" onclick="document.getElementById('evidenceInput').click()">
-      <!-- ✅ 이미지 + 음성 파일 모두 허용 -->
       <input type="file" id="evidenceInput" accept="image/*,audio/*" multiple>
       <div class="ico2">📎</div>
       <p><strong>클릭</strong>하거나 드래그해서 이미지 · 음성 추가</p>
     </div>
     <div class="evidence-grid" id="evidenceGrid"></div>
   </div>
-
   <div class="card">
     <div class="card-title">저장</div>
     <div class="actions"><button class="btn btn-main" onclick="downloadCake()">🎂 이미지로 저장</button></div>
@@ -220,12 +230,12 @@ footer span { color:var(--pink); }
   </div>
 </div>
 
-<!-- 이미지 크게 보기 모달 -->
 <div class="modal-bg" id="evidenceModalBg" onclick="closeEvidenceModal(event)">
   <div class="modal-box" style="max-width:600px;">
     <button class="modal-close" onclick="closeEvidenceModal()">×</button>
     <img id="evidenceModalImg" src="" alt=""
-      style="width:100%;height:auto;max-height:75vh;object-fit:contain;border-radius:12px;border:none;box-shadow:0 4px 20px rgba(45,27,51,.2);margin-bottom:1rem;">
+      style="width:100%;height:auto;max-height:70vh;object-fit:contain;border-radius:12px;border:none;box-shadow:0 4px 20px rgba(45,27,51,.2);margin-bottom:.8rem;">
+    <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:3px;" id="evidenceModalName"></div>
     <div class="modal-owner" id="evidenceModalOwner"></div>
   </div>
 </div>
@@ -256,46 +266,40 @@ window.addEventListener('DOMContentLoaded',()=>{
   drawCake();
 });
 
-/* ══ 케이크 드래그드롭 ══ */
 const dz=document.getElementById('dropZone');
 dz.addEventListener('dragover',e=>{e.preventDefault();dz.style.borderColor='#FF6B9D';});
 dz.addEventListener('dragleave',()=>{dz.style.borderColor='';});
 dz.addEventListener('drop',e=>{e.preventDefault();dz.style.borderColor='';addFiles(e.dataTransfer.files);});
 document.getElementById('fileInput').addEventListener('change',e=>addFiles(e.target.files));
 
-/* ══ 증빙 서류 드래그드롭 ══ */
 const edz=document.getElementById('evidenceDZ');
 edz.addEventListener('dragover',e=>{e.preventDefault();edz.style.borderColor='#9B7AAC';});
 edz.addEventListener('dragleave',()=>{edz.style.borderColor='';});
 edz.addEventListener('drop',e=>{e.preventDefault();edz.style.borderColor='';addEvidenceFiles(e.dataTransfer.files);});
 document.getElementById('evidenceInput').addEventListener('change',e=>addEvidenceFiles(e.target.files));
 
-/* ══ 증빙 서류 추가 (이미지 + 음성) ══ */
 function addEvidenceFiles(files){
   Array.from(files).forEach(file=>{
     const reader=new FileReader();
     reader.onload=ev=>{
       if(file.type.startsWith('image/')){
-        // 이미지
         const img=new Image();
         img.onload=()=>{
           fbPush(fbRef(fbDB,`rooms/${roomId}/evidence`),{
             uid:myUID, nick:myNick,
             type:'image',
-            fileName:file.name,
+            fileName:file.name.replace(/\.[^.]+$/,'').slice(0,20),
             imgData:compressImageFull(img,1200,0.88),
             ts:Date.now()
           });
         };
         img.src=ev.target.result;
       } else if(file.type.startsWith('audio/')){
-        // 음성 — base64로 저장
-        // ⚠️ 큰 파일은 Firebase 제한(10MB)에 걸릴 수 있으니 주의
         fbPush(fbRef(fbDB,`rooms/${roomId}/evidence`),{
           uid:myUID, nick:myNick,
           type:'audio',
           fileName:file.name.replace(/\.[^.]+$/,'').slice(0,20),
-          audioData:ev.target.result,  // base64 dataURL
+          audioData:ev.target.result,
           ts:Date.now()
         });
       }
@@ -305,55 +309,45 @@ function addEvidenceFiles(files){
   document.getElementById('evidenceInput').value='';
 }
 
-/* ══ 증빙 서류 렌더링 ══ */
 function renderEvidence(data){
   const grid=document.getElementById('evidenceGrid');
   grid.innerHTML='';
   const items=Object.entries(data).sort((a,b)=>(a[1].ts||0)-(b[1].ts||0));
-
   items.forEach(([key,ev])=>{
     if(ev.type==='audio'){
-      // ✅ 음성 카드
-      const card=document.createElement('div');
-      card.className='evidence-audio-card';
-
-      const icon=document.createElement('div');icon.className='audio-icon';icon.textContent='🎵';
-
-      const name=document.createElement('div');name.className='audio-name';
-      name.textContent=ev.fileName||'음성파일';
-
-      const nick=document.createElement('div');nick.className='audio-nick';
-      nick.textContent=ev.nick||'?';
-
-      const audio=document.createElement('audio');
-      audio.controls=true;
-      audio.src=ev.audioData;
-      // 클릭이 카드 전체로 퍼지지 않도록
+      const card=document.createElement('div'); card.className='evidence-audio-card';
+      const icon=document.createElement('div'); icon.className='audio-icon'; icon.textContent='🎵';
+      const name=document.createElement('div'); name.className='audio-name'; name.textContent=ev.fileName||'음성파일';
+      const nick=document.createElement('div'); nick.className='audio-nick'; nick.textContent=ev.nick||'?';
+      const audio=document.createElement('audio'); audio.controls=true; audio.src=ev.audioData;
       audio.onclick=e=>e.stopPropagation();
-
       card.append(icon,name,nick,audio);
-
       if(ev.uid===myUID){
-        const del=document.createElement('button');del.className='ev-del';del.textContent='×';
+        const del=document.createElement('button'); del.className='ev-del'; del.textContent='×';
         del.onclick=e=>{e.stopPropagation();fbRemove(fbRef(fbDB,`rooms/${roomId}/evidence/${key}`));};
         card.appendChild(del);
       }
       grid.appendChild(card);
-
     } else {
-      // ✅ 이미지 카드
-      const card=document.createElement('div');card.className='evidence-card';
+      // ✅ 이미지 카드 - 파일명 + 닉네임 표시
+      const card=document.createElement('div'); card.className='evidence-card';
 
-      const img=document.createElement('img');img.src=ev.imgData;img.loading='lazy';
-      img.onclick=()=>openEvidenceModal(ev.imgData,ev.nick);
+      const imgWrap=document.createElement('div'); imgWrap.className='ev-img-wrap';
+      const img=document.createElement('img'); img.src=ev.imgData; img.loading='lazy';
+      imgWrap.appendChild(img);
 
-      const owner=document.createElement('div');owner.className='ev-owner';
+      const info=document.createElement('div'); info.className='ev-info';
+      const fname=document.createElement('div'); fname.className='ev-filename';
+      fname.textContent=ev.fileName||'이미지';
+      const owner=document.createElement('div'); owner.className='ev-owner';
       owner.textContent=ev.nick||'?';
+      info.append(fname,owner);
 
-      card.append(img,owner);
+      card.append(imgWrap,info);
+      card.onclick=()=>openEvidenceModal(ev.imgData, ev.fileName, ev.nick);
 
       if(ev.uid===myUID){
-        const del=document.createElement('button');del.className='ev-del';del.textContent='×';
+        const del=document.createElement('button'); del.className='ev-del'; del.textContent='×';
         del.onclick=e=>{e.stopPropagation();fbRemove(fbRef(fbDB,`rooms/${roomId}/evidence/${key}`));};
         card.appendChild(del);
       }
@@ -362,8 +356,9 @@ function renderEvidence(data){
   });
 }
 
-function openEvidenceModal(src,nick){
+function openEvidenceModal(src, fileName, nick){
   document.getElementById('evidenceModalImg').src=src;
+  document.getElementById('evidenceModalName').textContent=fileName||'';
   document.getElementById('evidenceModalOwner').textContent=nick?`올린 사람: ${nick}`:'';
   document.getElementById('evidenceModalBg').classList.add('open');
 }
@@ -462,9 +457,6 @@ function getCachedImg(src){
   return(img&&img.complete&&img.naturalWidth)?img:null;
 }
 
-/* ════════════════════════
-   케이크 그리기
-════════════════════════ */
 function drawCake(){
   const W=1200,H=900;
   ctx.clearRect(0,0,W,H);
