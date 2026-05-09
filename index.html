@@ -99,18 +99,43 @@ button.btn:active { transform:scale(.97); }
 footer { text-align:center; font-size:12px; color:var(--muted); margin-top:3rem; font-weight:300; }
 footer span { color:var(--pink); }
 
-/* 증빙 서류 */
+/* ══ 증빙 서류 ══ */
 .evidence-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(120px,1fr)); gap:10px; margin-top:14px; }
 .evidence-card { position:relative; border-radius:12px; overflow:hidden; background:#fff;
   box-shadow:0 2px 10px rgba(45,27,51,.07); border:1px solid rgba(242,92,138,.1); aspect-ratio:1; cursor:pointer; }
 .evidence-card img { width:100%; height:100%; object-fit:cover; display:block; transition:transform .2s; }
 .evidence-card:hover img { transform:scale(1.04); }
-.evidence-card .ev-owner { position:absolute; bottom:0; left:0; right:0; background:linear-gradient(transparent,rgba(45,27,51,.7));
+.evidence-card .ev-owner { position:absolute; bottom:0; left:0; right:0;
+  background:linear-gradient(transparent,rgba(45,27,51,.7));
   color:#fff; font-size:11px; font-weight:700; padding:16px 6px 5px; text-align:center; }
 .evidence-card .ev-del { position:absolute; top:5px; right:5px; background:rgba(217,74,120,.85); color:#fff;
-  border:none; border-radius:50%; width:20px; height:20px; font-size:12px; cursor:pointer; display:none;
-  align-items:center; justify-content:center; line-height:1; }
+  border:none; border-radius:50%; width:20px; height:20px; font-size:12px; cursor:pointer;
+  display:none; align-items:center; justify-content:center; line-height:1; }
 .evidence-card:hover .ev-del { display:flex; }
+
+/* ══ 음성 카드 ══ */
+.evidence-audio-card {
+  position:relative; border-radius:12px; background:#fff;
+  box-shadow:0 2px 10px rgba(45,27,51,.07); border:1px solid rgba(155,122,172,.2);
+  padding:14px 12px 10px; display:flex; flex-direction:column; align-items:center; gap:8px;
+}
+.evidence-audio-card .audio-icon { font-size:28px; line-height:1; }
+.evidence-audio-card .audio-name {
+  font-size:11px; color:var(--text); font-weight:700;
+  text-align:center; width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+.evidence-audio-card .audio-nick { font-size:10px; color:var(--muted); }
+.evidence-audio-card audio {
+  width:100%; height:32px; margin-top:2px;
+  accent-color:var(--pink);
+}
+.evidence-audio-card .ev-del {
+  position:absolute; top:5px; right:5px; background:rgba(217,74,120,.85); color:#fff;
+  border:none; border-radius:50%; width:20px; height:20px; font-size:12px; cursor:pointer;
+  display:none; align-items:center; justify-content:center; line-height:1;
+}
+.evidence-audio-card:hover .ev-del { display:flex; }
+
 .upload-zone2 { border:2px dashed rgba(155,122,172,.3); border-radius:14px; padding:1rem; text-align:center;
   cursor:pointer; transition:all .2s; background:rgba(155,122,172,.03); }
 .upload-zone2:hover { border-color:var(--muted); background:rgba(155,122,172,.07); }
@@ -165,15 +190,19 @@ footer span { color:var(--pink); }
     <div class="card-title">케이크 미리보기 · 클릭하면 크게 보임</div>
     <div class="cake-stage"><canvas id="cakeCanvas" width="1200" height="900"></canvas></div>
   </div>
+
+  <!-- ✅ 증빙 서류 카드 -->
   <div class="card">
     <div class="card-title">📂 증빙 서류 · 왜 좋은지 설명용</div>
     <div class="upload-zone2" id="evidenceDZ" onclick="document.getElementById('evidenceInput').click()">
-      <input type="file" id="evidenceInput" accept="image/*" multiple>
+      <!-- ✅ 이미지 + 음성 파일 모두 허용 -->
+      <input type="file" id="evidenceInput" accept="image/*,audio/*" multiple>
       <div class="ico2">📎</div>
-      <p><strong>클릭</strong>하거나 드래그해서 증빙 이미지 추가</p>
+      <p><strong>클릭</strong>하거나 드래그해서 이미지 · 음성 추가</p>
     </div>
     <div class="evidence-grid" id="evidenceGrid"></div>
   </div>
+
   <div class="card">
     <div class="card-title">저장</div>
     <div class="actions"><button class="btn btn-main" onclick="downloadCake()">🎂 이미지로 저장</button></div>
@@ -191,13 +220,16 @@ footer span { color:var(--pink); }
   </div>
 </div>
 
+<!-- 이미지 크게 보기 모달 -->
 <div class="modal-bg" id="evidenceModalBg" onclick="closeEvidenceModal(event)">
   <div class="modal-box" style="max-width:600px;">
     <button class="modal-close" onclick="closeEvidenceModal()">×</button>
-    <img id="evidenceModalImg" src="" alt="" style="width:100%;height:auto;max-height:75vh;object-fit:contain;border-radius:12px;border:none;box-shadow:0 4px 20px rgba(45,27,51,.2);margin-bottom:1rem;">
+    <img id="evidenceModalImg" src="" alt=""
+      style="width:100%;height:auto;max-height:75vh;object-fit:contain;border-radius:12px;border:none;box-shadow:0 4px 20px rgba(45,27,51,.2);margin-bottom:1rem;">
     <div class="modal-owner" id="evidenceModalOwner"></div>
   </div>
 </div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -224,59 +256,113 @@ window.addEventListener('DOMContentLoaded',()=>{
   drawCake();
 });
 
+/* ══ 케이크 드래그드롭 ══ */
 const dz=document.getElementById('dropZone');
 dz.addEventListener('dragover',e=>{e.preventDefault();dz.style.borderColor='#FF6B9D';});
 dz.addEventListener('dragleave',()=>{dz.style.borderColor='';});
 dz.addEventListener('drop',e=>{e.preventDefault();dz.style.borderColor='';addFiles(e.dataTransfer.files);});
 document.getElementById('fileInput').addEventListener('change',e=>addFiles(e.target.files));
 
-/* ════ 증빙 서류 ════ */
+/* ══ 증빙 서류 드래그드롭 ══ */
 const edz=document.getElementById('evidenceDZ');
 edz.addEventListener('dragover',e=>{e.preventDefault();edz.style.borderColor='#9B7AAC';});
 edz.addEventListener('dragleave',()=>{edz.style.borderColor='';});
 edz.addEventListener('drop',e=>{e.preventDefault();edz.style.borderColor='';addEvidenceFiles(e.dataTransfer.files);});
 document.getElementById('evidenceInput').addEventListener('change',e=>addEvidenceFiles(e.target.files));
 
+/* ══ 증빙 서류 추가 (이미지 + 음성) ══ */
 function addEvidenceFiles(files){
   Array.from(files).forEach(file=>{
-    if(!file.type.startsWith('image/'))return;
     const reader=new FileReader();
     reader.onload=ev=>{
-      const img=new Image();
-      img.onload=()=>{
+      if(file.type.startsWith('image/')){
+        // 이미지
+        const img=new Image();
+        img.onload=()=>{
+          fbPush(fbRef(fbDB,`rooms/${roomId}/evidence`),{
+            uid:myUID, nick:myNick,
+            type:'image',
+            fileName:file.name,
+            imgData:compressImageFull(img,1200,0.88),
+            ts:Date.now()
+          });
+        };
+        img.src=ev.target.result;
+      } else if(file.type.startsWith('audio/')){
+        // 음성 — base64로 저장
+        // ⚠️ 큰 파일은 Firebase 제한(10MB)에 걸릴 수 있으니 주의
         fbPush(fbRef(fbDB,`rooms/${roomId}/evidence`),{
           uid:myUID, nick:myNick,
-          imgData:compressImageFull(img,1200,0.88),
+          type:'audio',
+          fileName:file.name.replace(/\.[^.]+$/,'').slice(0,20),
+          audioData:ev.target.result,  // base64 dataURL
           ts:Date.now()
         });
-      };
-      img.src=ev.target.result;
+      }
     };
     reader.readAsDataURL(file);
   });
   document.getElementById('evidenceInput').value='';
 }
 
+/* ══ 증빙 서류 렌더링 ══ */
 function renderEvidence(data){
   const grid=document.getElementById('evidenceGrid');
   grid.innerHTML='';
   const items=Object.entries(data).sort((a,b)=>(a[1].ts||0)-(b[1].ts||0));
+
   items.forEach(([key,ev])=>{
-    const card=document.createElement('div');card.className='evidence-card';
-    const img=document.createElement('img');img.src=ev.imgData;img.loading='lazy';
-    img.onclick=()=>openEvidenceModal(ev.imgData, ev.nick);
-    const owner=document.createElement('div');owner.className='ev-owner';owner.textContent=ev.nick||'?';
-    card.append(img,owner);
-    if(ev.uid===myUID){
-      const del=document.createElement('button');del.className='ev-del';del.textContent='×';
-      del.onclick=e=>{e.stopPropagation();fbRemove(fbRef(fbDB,`rooms/${roomId}/evidence/${key}`));};
-      card.appendChild(del);
+    if(ev.type==='audio'){
+      // ✅ 음성 카드
+      const card=document.createElement('div');
+      card.className='evidence-audio-card';
+
+      const icon=document.createElement('div');icon.className='audio-icon';icon.textContent='🎵';
+
+      const name=document.createElement('div');name.className='audio-name';
+      name.textContent=ev.fileName||'음성파일';
+
+      const nick=document.createElement('div');nick.className='audio-nick';
+      nick.textContent=ev.nick||'?';
+
+      const audio=document.createElement('audio');
+      audio.controls=true;
+      audio.src=ev.audioData;
+      // 클릭이 카드 전체로 퍼지지 않도록
+      audio.onclick=e=>e.stopPropagation();
+
+      card.append(icon,name,nick,audio);
+
+      if(ev.uid===myUID){
+        const del=document.createElement('button');del.className='ev-del';del.textContent='×';
+        del.onclick=e=>{e.stopPropagation();fbRemove(fbRef(fbDB,`rooms/${roomId}/evidence/${key}`));};
+        card.appendChild(del);
+      }
+      grid.appendChild(card);
+
+    } else {
+      // ✅ 이미지 카드
+      const card=document.createElement('div');card.className='evidence-card';
+
+      const img=document.createElement('img');img.src=ev.imgData;img.loading='lazy';
+      img.onclick=()=>openEvidenceModal(ev.imgData,ev.nick);
+
+      const owner=document.createElement('div');owner.className='ev-owner';
+      owner.textContent=ev.nick||'?';
+
+      card.append(img,owner);
+
+      if(ev.uid===myUID){
+        const del=document.createElement('button');del.className='ev-del';del.textContent='×';
+        del.onclick=e=>{e.stopPropagation();fbRemove(fbRef(fbDB,`rooms/${roomId}/evidence/${key}`));};
+        card.appendChild(del);
+      }
+      grid.appendChild(card);
     }
-    grid.appendChild(card);
   });
 }
 
-function openEvidenceModal(src, nick){
+function openEvidenceModal(src,nick){
   document.getElementById('evidenceModalImg').src=src;
   document.getElementById('evidenceModalOwner').textContent=nick?`올린 사람: ${nick}`:'';
   document.getElementById('evidenceModalBg').classList.add('open');
@@ -383,18 +469,15 @@ function drawCake(){
   const W=1200,H=900;
   ctx.clearRect(0,0,W,H);
   hitAreas=[];
+  const cx=W/2,cbottom=H-60,ctop=cbottom-155;
+  const rx=500,ryT=66,ryB=43;
 
-  const cx=W/2, cbottom=H-60, ctop=cbottom-155;
-  const rx=500, ryT=66, ryB=43;
-
-  /* 배경 점 */
   ctx.globalAlpha=.11;
   [[80,40,'#FF6B9D'],[1120,55,'#FFB347'],[80,840,'#FF9BBB'],[1120,840,'#FF6B9D'],[400,22,'#FFB347'],[800,22,'#FF9BBB']].forEach(([x,y,c])=>{
     ctx.beginPath();ctx.arc(x,y,8,0,Math.PI*2);ctx.fillStyle=c;ctx.fill();
   });
   ctx.globalAlpha=1;
 
-  /* 케이크 몸통 */
   efill(cx,cbottom,rx,ryB,'#D94A78');
   ctx.beginPath();
   ctx.moveTo(cx-rx,ctop);ctx.lineTo(cx-rx,cbottom);
@@ -404,33 +487,22 @@ function drawCake(){
   sg.addColorStop(0,'#F25C8A');sg.addColorStop(.5,'#E8547F');sg.addColorStop(1,'#D94A78');
   ctx.fillStyle=sg;ctx.fill();
 
-  /* 크림 흘림 */
   for(let i=0;i<20;i++){
-    const a=Math.PI/19*i;
-    const ex=cx+Math.cos(Math.PI-a)*rx*.99;
-    const ey=ctop+Math.sin(Math.PI-a)*ryT*.5;
-    const dl=14+(i%3)*10;
+    const a=Math.PI/19*i,ex=cx+Math.cos(Math.PI-a)*rx*.99,ey=ctop+Math.sin(Math.PI-a)*ryT*.5,dl=14+(i%3)*10;
     ctx.beginPath();ctx.moveTo(ex,ey-2);
     ctx.bezierCurveTo(ex-2,ey+dl*.5,ex+2,ey+dl*.8,ex,ey+dl);
     ctx.strokeStyle='#FFF0F5';ctx.lineWidth=9;ctx.lineCap='round';ctx.stroke();
   }
-
-  /* 윗면 */
   efill(cx,ctop,rx,ryT,'#FF9BBB');
   estroke(cx,ctop,rx,ryT,'#FFF0F5',8);
-
-  /* 크림 방울 */
   for(let i=0;i<24;i++){
     const a=(2*Math.PI/24)*i;
     ctx.beginPath();ctx.arc(cx+Math.cos(a)*rx*.87,ctop+Math.sin(a)*ryT*.87,7,0,Math.PI*2);
     ctx.fillStyle='#FFF0F5';ctx.fill();
   }
-
-  /* 딸기 */
   [0.3,1.0,1.7,2.4,3.1,3.8,4.5,5.2,5.9].forEach(a=>
     drawStrawberry(cx+Math.cos(a)*rx*.62,ctop+Math.sin(a)*ryT*.62,12));
 
-  /* ══ 초 배치 ══ */
   const chars=allChars.filter(c=>c.imgData);
   if(chars.length===0){
     ctx.font='20px "Gmarket Sans",sans-serif';
@@ -439,40 +511,25 @@ function drawCake(){
     return;
   }
 
-  const CR=48;
-  const STICK=70;
-  const FLOOR_H=CR*2+35;
-
-  /* 1층 최대 개수 */
+  const CR=48,STICK=70,FLOOR_H=CR*2+35;
   const CAP=Math.max(2,Math.floor((rx*2*0.90)/(CR*2+10)));
+  const floors=[chars.slice(0,CAP),chars.slice(CAP,CAP*2),chars.slice(CAP*2,CAP*3)].filter(f=>f.length>0);
 
-  const floors=[
-    chars.slice(0,CAP),
-    chars.slice(CAP,CAP*2),
-    chars.slice(CAP*2,CAP*3)
-  ].filter(f=>f.length>0);
-
-  /* 위치 계산 */
   const floorData=floors.map((floorChars,fi)=>{
     const n=floorChars.length;
     const sl=STICK+fi*FLOOR_H;
     const positions=[];
     for(let i=0;i<n;i++){
-      /* x: 케이크 좌우 균등 분산 */
       const t=n===1?0.5:i/(n-1);
       const px=(cx-rx*0.88)+t*(rx*0.88*2);
-
-      /* ✅ y: 타원 앞쪽 40% 지점에 꽂히게 */
       const dxRatio=(px-cx)/rx;
       const ellipseY=ryT*Math.sqrt(Math.max(0,1-dxRatio*dxRatio));
       const py=ctop+ellipseY*0.4;
-
       positions.push({px,py,sl});
     }
     return{floorChars,fi,positions,sl};
   });
 
-  /* ── 1단계: 모든 막대+불꽃 먼저 ── */
   floorData.forEach(({positions,sl})=>{
     positions.forEach(({px,py})=>{
       const sw=7;
@@ -482,7 +539,6 @@ function drawCake(){
       ctx.strokeStyle=gg;ctx.lineWidth=sw;ctx.lineCap='round';
       ctx.beginPath();ctx.moveTo(px,py);ctx.lineTo(px,py-sl);ctx.stroke();
       ctx.restore();
-
       ctx.save();ctx.globalAlpha=.92;
       ctx.beginPath();ctx.ellipse(px,py-sl-11,4,10,0,0,Math.PI*2);ctx.fillStyle='#FFD700';ctx.fill();
       ctx.beginPath();ctx.ellipse(px,py-sl-10,2.5,6,0,0,Math.PI*2);ctx.fillStyle='#FF8C00';ctx.fill();
@@ -490,13 +546,10 @@ function drawCake(){
     });
   });
 
-  /* ── 2단계: 모든 사진+이름 나중에 → 막대가 사진 뒤로 ── */
   floorData.forEach(({floorChars,fi,positions,sl})=>{
     positions.forEach(({px,py},i)=>{
       const icy=py-sl-CR;
       const globalIdx=allChars.filter(c=>c.imgData).indexOf(floorChars[i]);
-
-      /* 흰 테두리 */
       ctx.save();
       ctx.beginPath();ctx.arc(px,icy,CR+4,0,Math.PI*2);
       ctx.fillStyle='#fff';ctx.shadowColor='rgba(242,92,138,.4)';ctx.shadowBlur=16;ctx.fill();
@@ -505,8 +558,6 @@ function drawCake(){
       ctx.beginPath();ctx.arc(px,icy,CR+4,0,Math.PI*2);
       ctx.strokeStyle='#FF9BBB';ctx.lineWidth=3;ctx.stroke();
       ctx.restore();
-
-      /* 사진 */
       const img=getCachedImg(floorChars[i].imgData);
       if(img){
         ctx.save();ctx.beginPath();ctx.arc(px,icy,CR,0,Math.PI*2);ctx.clip();
@@ -515,8 +566,6 @@ function drawCake(){
         ctx.save();ctx.beginPath();ctx.arc(px,icy,CR,0,Math.PI*2);
         ctx.fillStyle='rgba(255,155,187,.3)';ctx.fill();ctx.restore();
       }
-
-      /* 이름 */
       const nm=(floorChars[i].name||'').slice(0,8)+((floorChars[i].name?.length||0)>8?'…':'');
       if(nm){
         ctx.font='bold 13px "Gmarket Sans",sans-serif';
@@ -526,19 +575,15 @@ function drawCake(){
         ctx.fillStyle='#D94A78';ctx.textAlign='center';
         ctx.fillText(nm,px,ly+15);
       }
-
-      /* 닉네임 */
       if(floorChars[i].nick){
         ctx.font='11px "Gmarket Sans",sans-serif';
         ctx.fillStyle='rgba(155,122,172,.85)';ctx.textAlign='center';
         ctx.fillText(floorChars[i].nick,px,icy-CR-9);
       }
-
       hitAreas.push({x:px,y:icy,r:CR+4,idx:globalIdx});
     });
   });
 
-  /* 서명 */
   ctx.font='bold 14px "Gmarket Sans",sans-serif';
   ctx.fillStyle='rgba(155,122,172,.32)';ctx.textAlign='center';
   ctx.fillText(roomId?`가능충 케이크 · ${roomId}방`:'가능충 케이크 메이커',W/2,H-14);
